@@ -1,0 +1,213 @@
+\documentclass[10pt]{article}
+
+
+% Tous les packages prédéfinis
+\usepackage{introLatex}
+\usepackage{headfootLatex}
+\usepackage{shortcutLatex}
+\usepackage{envLatex}
+\usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+\graphicspath{{logos/}{figures/}}
+
+
+
+
+\makeatletter
+\def\hlinewd#1{%
+\noalign{\ifnum0=`}\fi\hrule \@height #1 %
+\futurelet\reserved@a\@xhline}
+\makeatother
+
+
+\begin{document}
+
+
+% Titre du document
+\vspace*{-22pt}
+\begin{center}
+\textbf{\Large Etude mathématique et numérique \\ du groupe de renormalisation non perturbatif}\\
+\vspace*{4pt}
+Gaétan Facchinetti \\
+{\small 27 février - 28 juillet 2017\\
+\vspace*{5pt}
+\textit{Laboratoire de Physique Théorique de la Matièe Condensée},\\
+\textit{Université Paris-Saclay}, \textit{Ecole Normale Supérieure de Cachan}, \\
+\textit{Ecole Nationale Supérieure des Techniques Avancées}}\\
+\end{center}
+
+
+\begin{center}
+\rule{10cm}{1pt}
+\end{center}
+
+%\vspace*{4pt}
+
+\begin{multicols}{2}
+
+\section{Le groupe de renormalisation}
+
+\subsection{Introduction}
+
+On considère un système physique en dimension $d$ et symétrique par le groupe de rotation $O(N)$. Il peut alors être décrit par un champ $\varphiv$ de $\R^d$ dans $ \R^N$. Toutes les informations que l'on peut souhaiter avoir sur ce système sont, dès lors, contenu dans sa fonction de partition dont l'expression purement formelle est 
+
+\begin{equation}
+\Zc[\hv] = \int \Dr \varphiv e^{-H[\varphiv] + \int_{\R^d} \hv \varphiv} 
+\end{equation} 
+
+Où l'intégrale est une intégrale fonctionnelle, sur l'ensemble des champs $\varphiv$ possibles. $\hv$ représente une exitation extérieure, $H[\varphiv]$ est le hamiltonien du système (prenant en compte la dépendance en température).\\
+
+Cependant, les intégrales fonctionnelles ne sont que des objets formels sur lesquels il est impossible de réaliser une résolution analytique ou numérique directelemnt. L'objectif du groupe de renormalisation est ainsi de parvenir à calculer, sous certaines approximations, des grandeurs ratachées à cette fonction de partition, contenant l'information souhaitée. 
+
+\pagebreak
+
+\appendix
+
+\section{Rappels de calculs}
+
+\subsection{Derivation fonctionnelle}
+
+
+\textbf{Définition}\\
+Soit $U$ et $V$ deux espaces de Banach. Soit $F$ une fonctionnelle de $U$ dans $V$. 
+Soit $f \in U$. On appelle, si elle existe, dérivée (au sens de Fréchet) de la fonctionelle $F$ prise en $f$, l'application linéaire de $\mathcal{L}(U,V)$, notée $D_fF$ telle que, pour $\eps>0$, 
+
+\begin{equation}
+\forall h \in U \quad \lim_{ \eps \rightarrow 0 } \frac{\| F[f+\eps h] - F[f] - \eps D_fF.h\|_V}{\eps}  = 0
+\end{equation} 
+
+
+Dans notre étude nous recontrerons essentiellement $V = (\R, |.|)$. On utilisera alors aussi les crochets de dualités, qui permettent de réécrire l'action d'un élément $T$ de $U^*$ sur $U$ (et de les identifier) : 
+
+\begin{equation}
+  \forall h \in U \quad T.h = \left< T, h \right>_{U^*, U}
+\end{equation}
+
+Ainsi, si la dérivée au sens de Fréchet de $F$ existe (donc si $F$ est Frechet différentlable en $f$) alors on note $\derd{F}{f}$ l'application de $U^*$ définie par 
+
+\begin{equation}
+  \forall h \in U \quad D_fF.h = \left< \derd{F}{f}, h \right>_{U^*, U}
+\end{equation}
+
+\vspace*{11pt}
+
+
+
+\subsection{Transformées de Fourier}
+
+On rappelle ici les notations utilisée pour définir les transformées de Fourier. Pour cela on considère $f$ une application de $L^2(\R^d, \R^N)$. On définit alors la transformée de Fourier de $f$, notée $\hat{f}$ par, 
+
+\begin{equation}
+  \forall q \in \R^d \quad \hat{f}(q) = \frac{1}{\sqrt{(2\pi)^d}}\int_{\R^d} f(x) e^{-iqx}\dd x
+\end{equation}
+
+Nous avons alors la relation inverse,
+
+\begin{equation}
+  \forall x \in \R^d \quad f(x) = \frac{1}{\sqrt{(2\pi)^d}}\int_{\R^d} \hat{f}(q) e^{iqx}\dd q
+\end{equation}
+
+Dans le cadre où $f \in \Sr'(\R^d, \R^N)$ (espace des distributions tempérées) alors on étend la notion de transformée de Fourier $\hat{f}$ de $f$ à l'aide du crochet de dualité, 
+
+\begin{equation}
+  \forall \phi \in \Sr(\R^d, \R^N) \quad \left< \hat{f}, \phi \right>_{\Sr', \Sr} = \left< f, \hat{\phi} \right>_{\Sr', \Sr}
+\end{equation}
+
+\vspace*{11pt}
+
+\textbf{Remarque} \\
+Dans le cas ou l'on a des fonctions définies non pas sur $\R^d$ mais sur un domaine $\omega \in \R^d$ alors nous aurons les formules équivalentes suivantes
+
+
+
+
+\vspace*{11pt}
+
+\subsection{TF et dérivées fonctionnelles}
+
+
+On expose ici la justification d'un résultat très souvent utilisé dans la dérivation des équations du groupe de renormalisation non perturbatif.\\ 
+
+%\noident
+\textbf{Proposition}
+
+Soit $F$ une fonctionelle de $U$ dans $(\R,|.|)$ et $f \in U$.
+Soit $x \in \R^d$. On suppose que $U \subset L^2(\R^d, \R^N)$. 
+Alors, 
+
+\begin{equation}
+  \derd{F}{f(x)} = \frac{1}{\sqrt{(2\pi)^d}} \int_{\R^d} \derd{F}{\hat{f}(-q)} e^{iqx} \dd^d q
+\end{equation} 
+
+
+\vspace*{11pt}
+%\noindent
+\textbf{Demonstration}
+
+Par la règle de la chaine de la dérivation de Fréchet nous pouvons écrire, 
+
+\begin{equation}
+  \forall h \in U \quad D_fF.h = D_{\hat{f}}F. D_f \hat{f}.h
+\end{equation}
+
+
+\commentout{
+Ainsi, ceci nous donne donc, pour $x \in \R^d$
+
+\begin{equation}
+  \derd{F}{f(x)} = \int_{\R^d} \derd{\hat{f}(q)}{f(x)}\derd{F}{\hat{f}(q)} \dd^d q
+\end{equation}
+}
+
+Cependant, $\hat{f}$ est une fonctionnelle de $f$ (par définition de la TF) de $U$ dans $U$ qui est linéaire en $f$. Soit $\eps >0$, 
+
+\begin{equation}
+  \forall h \in U \quad \hat{f}[f + \eps h] - \hat{f}[f] = \eps \hat{h} 
+\end{equation} 
+
+Il vient directement, par définition de la dérivation au sens de Frechet, $D_f\hat{f} .h = \hat{h}$.  
+Ainsi,  $D_f F .h = D_{\hat{f}}F.\hat{h}$.  On peut alors écrire, 
+
+\begin{align}
+  \forall h \in U  \quad D_f F .h & = \int_{\R^d} \derd{F}{f(q)} \int_{\R^d} h(x) e^{-iqx} \dd^d x \dd^d q \\
+  \forall h \in U  \quad D_f F .h & = \int_{\R^d} \int_{\R^d} \derd{F}{f(q)} e^{-iqx} h(x) \dd^d q \dd^d x \\
+  \forall h \in U  \quad D_f F .h & = \int_{\R^d} \int_{\R^d} \derd{F}{f(-q)} e^{iqx} \dd^d q \text{ } h(x) \dd^d x
+\end{align}
+
+Ce qui permet de conclure la démonstration.
+
+\vspace*{11pt}
+
+
+\subsection{Opérateur à noyaux}
+
+Soit $S$ un endomorphisme de $L^p(\R^d, \R^N)$ avec $1 \le p \le \infty$. On dit que $S$ est un operateur a noyaux s'il existe, pour tout $(i,j) \in \bbrac{1,N}^2$, une application $A_{i,j}$ telle que 
+\begin{equation}
+A_{i,j} : (x,y) \in (\R^d)^2 \rightarrow A_{i,j}(x,y) \in \R
+\end{equation}
+
+Et telle que,  pour tout $f \in L^p(\R^d, \R^N)$, et $x \in \R^d$ 
+\begin{equation}
+ - \infty < S[f]_i (x) = \int_{\R^d} \sum_{j=1}^{N} A_{i,j}(x,y)f_j(y) \dd^d y < +  \infty
+\end{equation}
+
+La matrice $A : (x,y) \rightarrow ((A_{i,j}(x,y)))_{i,j}$ est appellée noyaux de $S$. On identifiera alors dans les notations $S$ et $A$ indépendemment.
+
+
+\vspace*{11pt}
+
+\subsection{Trace d'un opérateur à noyaux}
+
+\textbf{Definition}\\
+On définit la trace d'un opérateur $S$ de noyaux $A$ par
+
+\begin{equation}
+  \text{Tr} A = \sum_{i=1}^{N} \int_{\R^d} A_{i,i}(x,x) \dd^d x 
+\end{equation}
+
+\end{multicols}
+
+
+\end{document}

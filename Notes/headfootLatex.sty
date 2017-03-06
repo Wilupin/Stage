@@ -1,0 +1,24 @@
+%% Informations générales
+\NeedsTeXFormat{LaTeX2e}[1999/01/01]
+\ProvidesPackage{headfootLatex}[2016/10/02 1.0]
+
+
+
+%% Calling the packages 
+\RequirePackage{fancyhdr} \pagestyle{fancy}
+\RequirePackage{lastpage}
+
+%% Changing the head and foot
+\cfoot{ \thepage{} }
+\rhead{ }
+\lhead{ }
+\lfoot{ \textsc{E.N.S. Cachan} }
+\rfoot{ \textsc{ } }
+
+%% Line modification
+\renewcommand\headrulewidth{0.00pt}
+\renewcommand\footrulewidth{0.00pt}
+
+
+%% Fin du package
+\endinput

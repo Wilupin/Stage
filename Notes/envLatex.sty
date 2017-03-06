@@ -1,0 +1,53 @@
+%% Informations générales
+\NeedsTeXFormat{LaTeX2e}[1999/01/01]
+\ProvidesPackage{envLatex}[2016/10/02 1.0]
+
+
+%% Special package for theorem environment 
+\RequirePackage{amsthm}
+
+
+% Theorem style
+\newtheoremstyle{theoremstyle} 
+  	{\topsep}                   % Space above
+    {\topsep}                   % Space below
+    {\itshape}                  % Body font
+    {}                          % Indent amount
+    {\scshape\bfseries}         % Theorem head font
+    {.}                         % Punctuation after theorem head
+    {\newline}                  % Space after theorem head
+    {}                          % Théorème name
+
+\newtheoremstyle{lemmestyle} 
+  	{\topsep}                   % Space above
+    {\topsep}                   % Space below
+    {\itshape}                  % Body font
+    {}                          % Indent amount
+    {\bfseries}                 % Theorem head font
+    {.}                         % Punctuation after theorem head
+    {\newline}                  % Space after theorem head
+    {}                          % Théorème name
+
+
+
+
+
+%% Definition of my own environments
+\theoremstyle{theoremstyle}
+\newtheorem{theorem}{Théorème}[section]
+
+\theoremstyle{lemmestyle}
+\newtheorem{lemme}{Lemme}
+
+\theoremstyle{lemmestyle}
+\newtheorem{corol}{Corollaire}[section]
+
+\newtheorem{definition}{Définition}[section]
+
+
+% Changing the QED symbol 
+\renewcommand\qedsymbol{$\blacksquare$}
+
+
+%% Fin du package
+\endinput
