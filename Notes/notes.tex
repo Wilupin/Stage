@@ -8,7 +8,7 @@
 \usepackage{envLatex}
 \usepackage{booktabs}
 \usepackage{algorithm}
-\usepackage{algpseudocode}
+%\usepackage{algpseudocode}
 
 \graphicspath{{logos/}{figures/}}
 
@@ -207,7 +207,18 @@ On définit la trace d'un opérateur $S$ de noyaux $A$ par
   \text{Tr} A = \sum_{i=1}^{N} \int_{\R^d} A_{i,i}(x,x) \dd^d x 
 \end{equation}
 
-\end{multicols}
 
+
+
+
+\subsection{Derivation de l'inverse d'une matrice}
+
+Soit $ n \in \mathbb{N}$. Soit $((A_{i,j}))_{i,j}$ une matrice de $\R^{n \times n}$ telles que pour tout $(i,j) \in \bbrac{1,n}$, $A_{i,j}$ soit une application de $\mathscr{C}^1(\R,\mathbb{C}) $. On suppose que pour tout $x \in \R$, $A(x) \in  \mathbb{G}L_n(\R)$. Alors, 
+
+\begin{equation}
+  \forall x \in \R \quad \frac{dA^{-1}(x)}{dx} = - A^{-1}(x) \frac{dA(x)}{dx}A^{-1}(x)
+\end{equation} 
+
+\end{multicols}
 
 \end{document}
