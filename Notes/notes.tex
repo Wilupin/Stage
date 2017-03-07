@@ -109,16 +109,24 @@ Nous avons alors la relation inverse,
   \forall x \in \R^d \quad f(x) = \frac{1}{\sqrt{(2\pi)^d}}\int_{\R^d} \hat{f}(q) e^{iqx}\dd q
 \end{equation}
 
-Dans le cadre où $f \in \Sr'(\R^d, \R^N)$ (espace des distributions tempérées) alors on étend la notion de transformée de Fourier $\hat{f}$ de $f$ à l'aide du crochet de dualité, 
+\textbf{Remarque 1} \\
+Dans le cas ou l'on a des fonctions définies non pas sur $\R^d$ mais sur un domaine $\Omega \subset \R^d$ fini alors nous aurons les  mêmes propriétés avec la relation "d'équivalence" : 
 
+\begin{equation}
+  \frac{1}{(2\pi)^d} \int_{\R^d} \dd^d \qv \overset{\text{$\Omega$ fini}}{\quad \longrightarrow \quad } \frac{1}{\Omega} \sum_{\qv}
+\end{equation}
+
+
+\textbf{Remarque 2} \\
+Dans le cadre où $f \in \Sr'(\R^d, \R^N)$ (espace des distributions tempérées) alors on étend la notion de transformée de Fourier $\hat{f}$ de $f$ à l'aide du crochet de dualité, 
 \begin{equation}
   \forall \phi \in \Sr(\R^d, \R^N) \quad \left< \hat{f}, \phi \right>_{\Sr', \Sr} = \left< f, \hat{\phi} \right>_{\Sr', \Sr}
 \end{equation}
 
 \vspace*{11pt}
 
-\textbf{Remarque} \\
-Dans le cas ou l'on a des fonctions définies non pas sur $\R^d$ mais sur un domaine $\omega \in \R^d$ alors nous aurons les formules équivalentes suivantes
+
+
 
 
 
@@ -134,9 +142,8 @@ On expose ici la justification d'un résultat très souvent utilisé dans la dé
 \textbf{Proposition}
 
 Soit $F$ une fonctionelle de $U$ dans $(\R,|.|)$ et $f \in U$.
-Soit $x \in \R^d$. On suppose que $U \subset L^2(\R^d, \R^N)$. 
+Soit $x \in \R^d$. On suppose que $U = L^2(\R^d, \R^N)$. 
 Alors, 
-
 \begin{equation}
   \derd{F}{f(x)} = \frac{1}{\sqrt{(2\pi)^d}} \int_{\R^d} \derd{F}{\hat{f}(-q)} e^{iqx} \dd^d q
 \end{equation} 
@@ -147,7 +154,6 @@ Alors,
 \textbf{Demonstration}
 
 Par la règle de la chaine de la dérivation de Fréchet nous pouvons écrire, 
-
 \begin{equation}
   \forall h \in U \quad D_fF.h = D_{\hat{f}}F. D_f \hat{f}.h
 \end{equation}
@@ -155,21 +161,18 @@ Par la règle de la chaine de la dérivation de Fréchet nous pouvons écrire,
 
 \commentout{
 Ainsi, ceci nous donne donc, pour $x \in \R^d$
-
 \begin{equation}
   \derd{F}{f(x)} = \int_{\R^d} \derd{\hat{f}(q)}{f(x)}\derd{F}{\hat{f}(q)} \dd^d q
 \end{equation}
 }
 
 Cependant, $\hat{f}$ est une fonctionnelle de $f$ (par définition de la TF) de $U$ dans $U$ qui est linéaire en $f$. Soit $\eps >0$, 
-
 \begin{equation}
   \forall h \in U \quad \hat{f}[f + \eps h] - \hat{f}[f] = \eps \hat{h} 
 \end{equation} 
 
 Il vient directement, par définition de la dérivation au sens de Frechet, $D_f\hat{f} .h = \hat{h}$.  
 Ainsi,  $D_f F .h = D_{\hat{f}}F.\hat{h}$.  On peut alors écrire, 
-
 \begin{align}
   \forall h \in U  \quad D_f F .h & = \int_{\R^d} \derd{F}{f(q)} \int_{\R^d} h(x) e^{-iqx} \dd^d x \dd^d q \\
   \forall h \in U  \quad D_f F .h & = \int_{\R^d} \int_{\R^d} \derd{F}{f(q)} e^{-iqx} h(x) \dd^d q \dd^d x \\
@@ -180,20 +183,83 @@ Ce qui permet de conclure la démonstration.
 
 \vspace*{11pt}
 
+\end{multicols}
 
-\subsection{Opérateur à noyaux}
 
-Soit $S$ un endomorphisme de $L^p(\R^d, \R^N)$ avec $1 \le p \le \infty$. On dit que $S$ est un operateur a noyaux s'il existe, pour tout $(i,j) \in \bbrac{1,N}^2$, une application $A_{i,j}$ telle que 
+\pagebreak
+
+\section{Opérateur à noyaux}
+
+Nous détaillons dans cette sections quelques propriétés élémentaires mais très utiles dans notre études des opérateurs à noyaux. Après une définition rigoureuse de ces opérateurs et de leur trace nous utiliserons une description plus formelle de ce que peut être leur inverse.\\
+
+
+
+\subsection{Definition}
+
+Soit $S$ un endomorphisme de . On appelle $S$ un operateur a noyaux, une application de $L^2(\R^d, \R^N)$, telle que pour tout $(i,j) \in \bbrac{1,N}^2$, il existe une application $A_{i,j} \in L^2(\R^d\times\R^d, \R)$ telle que,  pour tout $f \in L^2(\R^d, \R^N)$, et $x \in \R^d$ 
+ \begin{equation}
+  S[f]_i(x) = \int_{\R^d} \sum_{j=1}^{N} A_{i,j}(x,y)f_j(y) \dd^d y
+ \end{equation}
+
+ La matrice $A : (x,y) \rightarrow ((A_{i,j}(x,y)))_{i,j}$ est appellée noyaux de $S$. \\
+ On identifiera alors dans les notations $S$ et $A$ indépendemment. \\
+
+\textbf{Proposition}\\
+Par Cauchy-Schwartz cette définition à un sens, $S$ est bien définie. \\
+De plus $S$ et est un endomorphisme de $L^2(\R^d, \R^N)$. \\
+
+\textbf{Démonstration}\\
+Soit $f\in L^2(\R^d, \R^N)$.\\
+
 \begin{equation}
-A_{i,j} : (x,y) \in (\R^d)^2 \rightarrow A_{i,j}(x,y) \in \R
+   \int_{\R^d} \left| S[f]_i (\xv) \right|^{2} \dd^d \xv \le \int_{\R^d} \int_{\R^d} \sum_j 
 \end{equation}
 
-Et telle que,  pour tout $f \in L^p(\R^d, \R^N)$, et $x \in \R^d$ 
+
+\vspace*{11pt}
+
+\subsection{TF d'un opérateur à noyaux}
+
+Nous avons vu que $S$ définie comme précédemment était un endomorphisme de $L^2(\R^d, \R^N)$. Ainsi il est possible d'en définir la transformée de Fourier. \\
+
+\textbf{Proposition}\\
+Pour $S$ opérateur à noyaux défini comme ci-dessus, nous avons,
 \begin{equation}
- - \infty < S[f]_i (x) = \int_{\R^d} \sum_{j=1}^{N} A_{i,j}(x,y)f_j(y) \dd^d y < +  \infty
+  \hat{S}[f]_i(\qv) = \int_{\R^d} \sum_{j=1}^{N} \hat{A}_{i,j}(\qv, -\qv') \hat{f}_j(\qv')
 \end{equation}
 
-La matrice $A : (x,y) \rightarrow ((A_{i,j}(x,y)))_{i,j}$ est appellée noyaux de $S$. On identifiera alors dans les notations $S$ et $A$ indépendemment.
+
+
+\textbf{Démonstration}\\
+Nous développons le calcul de la transformée de Fourier. Soit $\qv \in \R^d$,
+\begin{align}
+ \hat{S}[f]_i(\qv)  = & \int_{\R^d} \int_{\R^d} \sum_{j=1}^{N} A_{i,j}(\xv,\yv)f_j(\yv) e^{-i\qv\xv} \dd^d \yv \dd^d \xv \\
+ \hat{S}[f]_i(\qv)  = & \int_{\R^{3d}} \sum_{j=1}^{N} A_{i,j}(\xv,\yv) \hat{f}_j(\qv') e^{i\qv'\yv} e^{- i\qv\xv}  \dd^d \qv' \dd^d \yv \dd^d \xv \\
+ \hat{S}[f]_i(\qv)  = &    \sum_{j=1}^{N} \int_{\R^d} \hat{f}_j(\qv') \left\{ \int_{\R^{2d}} A_{i,j}(\xv,\yv)  e^{i\qv'\yv} e^{- i\qv\xv}  \dd^d \yv \dd^d \xv   \right\} \dd^d \qv'\\
+\hat{S}[f]_i(\qv)  = &    \sum_{j=1}^{N} \int_{\R^d} \hat{f}_j(\qv') \hat{A}_{i,j}(\qv, -\qv') \dd^d \qv'\\
+\end{align}
+
+\vspace*{11pt}
+
+\subsection{Produit de Volterra}
+
+Considérons deux opérateurs à noyaux, $S$ et $T$ de noyaux respectifs $A$ et $B$. \\
+La composition de ces deux opérateur s'écrit comme suit,
+\begin{equation}
+  \forall \xv \in \R^d \quad S \circ T [f]_i (\xv) = \int_{\R^d}  \sum_{j=1}^{N} \left\{ \int_{\R^d} \sum_{j=k}^{N}A_{i,k}(\xv, \zv)B_{k,j}(\zv, \yv)  \dd^d \yv \right\} f_j(\yv)  \dd^d \yv
+\end{equation}
+
+On notera alors aussi
+\begin{equation}
+    \forall (\xv, \yv) \in (\R^d)^2 \quad (A \circ B)_{i,j} (\xv, \yv) = \int_{\R^d} \sum_{j=k}^{N}A_{i,k}(\xv, \zv)B_{k,j}(\zv, \yv)  \dd^d \yv 
+\end{equation}
+
+\textbf{Proposition}\\
+Par transformée de Fourier, par un calcul anaolgue à celui fait pour un simple noyaux, il vient,
+\begin{equation}
+\forall (\qv, \qv') \in (\R^d)^2 \quad\widehat{(A \circ B)}_{i,j}(\qv, \qv') =\int_{\R^d} \sum_{j=k}^{N}\hat{A}_{i,k}(\qv, \qv'')\hat{B}_{k,j}(-\qv'', \qv')  \dd^d \qv'' 
+\end{equation}
+
 
 
 \vspace*{11pt}
@@ -202,23 +268,71 @@ La matrice $A : (x,y) \rightarrow ((A_{i,j}(x,y)))_{i,j}$ est appellée noyaux d
 
 \textbf{Definition}\\
 On définit la trace d'un opérateur $S$ de noyaux $A$ par
-
 \begin{equation}
-  \text{Tr} A = \sum_{i=1}^{N} \int_{\R^d} A_{i,i}(x,x) \dd^d x 
+  \text{Tr} A = \sum_{i=1}^{N} \int_{\R^d} A_{i,i}(\xv,\xv) \dd^d \xv 
+\end{equation}
+
+
+\textbf{Proposition}\\
+Nous pouvons de manière similaire à ce qui a été fait pour démontrer l'expression de la transformée de Fourier d'un opérateur à noyaux en (...) dériver la relation sur la trace de la transformée de Fourier
+\begin{equation}
+  \text{Tr} \hat{A} = \sum_{i=1}^{N} \int_{\R^d} \hat{A}_{i,i}(\qv,-\qv) \dd^d \qv 
 \end{equation}
 
 
 
+\vspace*{11pt}
 
 
-\subsection{Derivation de l'inverse d'une matrice}
 
+\subsection{Dérivation de l'inverse d'une matrice}
+
+Afin de s'approprier les propriétés des opérateurs à noyaux, de par leur similarités avec les matrices nous commenceront par développer de petites propriétés matricielles que nous pourrons transposer par la suite.
+
+\vspace*{11pt}
+
+\textbf{Proposition} \\
 Soit $ n \in \mathbb{N}$. Soit $((A_{i,j}))_{i,j}$ une matrice de $\R^{n \times n}$ telles que pour tout $(i,j) \in \bbrac{1,n}$, $A_{i,j}$ soit une application de $\mathscr{C}^1(\R,\mathbb{C}) $. On suppose que pour tout $x \in \R$, $A(x) \in  \mathbb{G}L_n(\R)$. Alors, 
-
 \begin{equation}
   \forall x \in \R \quad \frac{dA^{-1}(x)}{dx} = - A^{-1}(x) \frac{dA(x)}{dx}A^{-1}(x)
 \end{equation} 
 
-\end{multicols}
+
+\textbf{Demonstration}\\
+Soit $x \in \R$.
+Par définition de $A^{-1}$, $AA^{-1} = \text{Id}_{\R^{n\times n}}$.\\
+En dérivant cette relation nous obtenons, 
+\begin{equation}
+  \frac{dA(x)}{dx}A^{-1}(x) + A\frac{dA^{-1}(x)}{dx} = 0
+\end{equation}
+
+Il vient directement le résultat.
+
+
+
+\section{Formules en vrac}
+
+\begin{equation}
+   \delta(\xv - \yv) = \int_{\R^d} F(\xv, \zv) F^{-1}(\zv, \yv) \dd^d \zv
+\end{equation}
+
+\begin{equation}
+   \delta_{i,j} \delta(\xv - \yv) = \int_{\R^d} \sum_{k=1}^{N} F_{i,k}(\xv, \zv) F^{-1}_{k,j}(\zv, \yv) \dd^d \zv
+\end{equation}
+
+\begin{equation}
+   \delta(\qv_1 +\qv_3) = \int_{\R^d} \hat{F}(\qv_1, -\qv_2) \hat{F}^{-1}(\qv_2, \qv_3) \dd^d \qv_3
+\end{equation}
+
+
+\begin{equation}
+   \delta_{i,j}\delta(\qv_1 +\qv_3) = \int_{\R^d} \sum_{k=1}^{N} \hat{F}_{i,k}(\qv_1, -\qv_2) \hat{F}^{-1}_{k,j}(\qv_2, \qv_3) \dd^d \qv_3
+\end{equation}
+
+\begin{equation}
+   \derd{\hat{F}}{\hat{\phiv}(-\pv)}(\qv_1, \qv_4) = - \int_{\R^d} \int_{\R^d} \hat{F}^{-1}(\qv_1, -\qv_2) \derd{\hat{F}}{\hat{\phiv}(-\pv)}(\qv_2, \qv_3) \hat{F}^{-1}(-\qv_3, \qv_4) \dd^d \qv_2 \dd^d \qv_3
+\end{equation}
+
+
 
 \end{document}
