@@ -1,0 +1,8 @@
+#!/bin/bash
+#SBATCH --job-name=O2d2.016
+#SBATCH --output=./test.out
+#SBATCH --error=./test.err
+#SBATCH --mincpus=6
+#SBATCH --cpus-per-task=6
+#SBATCH --exclude=ember
+srun nice -n 19 O2d2

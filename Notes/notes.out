@@ -1,13 +1,25 @@
-\BOOKMARK [1][-]{section.1}{Le groupe de renormalisation}{}% 1
+\BOOKMARK [1][-]{section.1}{Mod\350le physique}{}% 1
 \BOOKMARK [2][-]{subsection.1.1}{Introduction}{section.1}% 2
-\BOOKMARK [1][-]{appendix.A}{Rappels de calculs}{}% 3
-\BOOKMARK [2][-]{subsection.A.1}{Derivation fonctionnelle}{appendix.A}% 4
-\BOOKMARK [2][-]{subsection.A.2}{Transform\351es de Fourier}{appendix.A}% 5
-\BOOKMARK [2][-]{subsection.A.3}{TF et d\351riv\351es fonctionnelles}{appendix.A}% 6
-\BOOKMARK [1][-]{appendix.B}{Op\351rateur \340 noyaux}{}% 7
-\BOOKMARK [2][-]{subsection.B.1}{Definition}{appendix.B}% 8
-\BOOKMARK [2][-]{subsection.B.2}{TF d'un op\351rateur \340 noyaux}{appendix.B}% 9
-\BOOKMARK [2][-]{subsection.B.3}{Produit de Volterra}{appendix.B}% 10
-\BOOKMARK [2][-]{subsection.B.4}{Trace d'un op\351rateur \340 noyaux}{appendix.B}% 11
-\BOOKMARK [2][-]{subsection.B.5}{D\351rivation de l'inverse d'une matrice}{appendix.B}% 12
-\BOOKMARK [1][-]{appendix.C}{Formules en vrac}{}% 13
+\BOOKMARK [2][-]{subsection.1.2}{Description par des champs}{section.1}% 3
+\BOOKMARK [2][-]{subsection.1.3}{Grandeurs thermodynamiques}{section.1}% 4
+\BOOKMARK [2][-]{subsection.1.4}{Th\351orie de champ moyen, dimension anormale et longueur de Ginzburg}{section.1}% 5
+\BOOKMARK [2][-]{subsection.1.5}{Approximation Gaussienne, developpement en nombre de boucles}{section.1}% 6
+\BOOKMARK [3][-]{subsubsection.1.5.1}{Cas de la phase ordonn\351e \340 h=0}{subsection.1.5}% 7
+\BOOKMARK [3][-]{subsubsection.1.5.2}{Cas de la phase d\351sordonn\351e \340 h=0}{subsection.1.5}% 8
+\BOOKMARK [3][-]{subsubsection.1.5.3}{Cas \340 h=0}{subsection.1.5}% 9
+\BOOKMARK [1][-]{section.2}{Le groupe de renormalisation}{}% 10
+\BOOKMARK [2][-]{subsection.2.1}{L'id\351e g\351n\351rale}{section.2}% 11
+\BOOKMARK [2][-]{subsection.2.2}{Les \351quations de flot}{section.2}% 12
+\BOOKMARK [1][-]{section.3}{L'approximation BMW}{}% 13
+\BOOKMARK [1][-]{appendix.A}{Rappels de calculs}{}% 14
+\BOOKMARK [2][-]{subsection.A.1}{Derivation fonctionnelle}{appendix.A}% 15
+\BOOKMARK [2][-]{subsection.A.2}{Transform\351es de Fourier}{appendix.A}% 16
+\BOOKMARK [2][-]{subsection.A.3}{TF et d\351riv\351es fonctionnelles}{appendix.A}% 17
+\BOOKMARK [1][-]{appendix.B}{Op\351rateur \340 noyaux}{}% 18
+\BOOKMARK [2][-]{subsection.B.1}{Definition}{appendix.B}% 19
+\BOOKMARK [2][-]{subsection.B.2}{TF d'un op\351rateur \340 noyaux}{appendix.B}% 20
+\BOOKMARK [2][-]{subsection.B.3}{Produit de Volterra}{appendix.B}% 21
+\BOOKMARK [2][-]{subsection.B.4}{Trace d'un op\351rateur \340 noyaux}{appendix.B}% 22
+\BOOKMARK [2][-]{subsection.B.5}{D\351rivation de l'inverse d'une matrice}{appendix.B}% 23
+\BOOKMARK [1][-]{appendix.C}{Formules en vrac}{}% 24
+\BOOKMARK [1][-]{appendix.D}{Methode formelle de recherche des exposants critiques}{}% 25

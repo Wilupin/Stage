@@ -12,14 +12,20 @@
 
 \graphicspath{{logos/}{figures/}}
 
-
-
+\newcommand{\gam}[2]{\ensuremath{\Gamma^{(#1)}_{#2}}}
+\newcommand{\gamc}[3]{\ensuremath{\Gamma^{(#1)}_{#2}\[#3\]}}
+\newcommand{\gamp}[3]{\ensuremath{\Gamma^{(#1)}_{#2}\(#3\)}}
+\newcommand{\gamcf}[3]{\ensuremath{\hat{\Gamma}^{(#1)}_{#2}\[#3\]}}
+\newcommand{\gampf}[3]{\ensuremath{\hat{\Gamma}^{(#1)}_{#2}\(#3\)}}
 
 \makeatletter
 \def\hlinewd#1{%
 \noalign{\ifnum0=`}\fi\hrule \@height #1 %
 \futurelet\reserved@a\@xhline}
 \makeatother
+
+
+
 
 
 \begin{document}
@@ -47,21 +53,187 @@ Gaétan Facchinetti \\
 
 \begin{multicols}{2}
 
-\section{Le groupe de renormalisation}
+\section{Modèle physique}
 
 \subsection{Introduction}
 
-On considère un système physique en dimension $d$ et symétrique par le groupe de rotation $O(N)$. Il peut alors être décrit par un champ $\varphiv$ de $\R^d$ dans $ \R^N$. Toutes les informations que l'on peut souhaiter avoir sur ce système sont, dès lors, contenu dans sa fonction de partition dont l'expression purement formelle est 
+Les transitions de phases sont des phénomènes très étudiés en physique de par l'existence de grandeurs universelles dans leur déroulement \cite{bellac2012}. En effet, pour fixer les idées considérons un système de spins en dimension $d \in \N^*$. Regardons alors une transition d'une phase ferromagnétique (tous les spins alignés dans la même direction) que l'on retrouve à de basses températures à une phase paramagnétique (tous les spins sont désordonnées) qui s'observe à haute température. Dans la classification de Landau cette transition est dite du second ordre. On retrouve donc une phase ordonnée dans laquelle la symétrie du système est brisée, et une phase désordonnée symétrique ; pour passer de l'une a l'autre des deux phases on joue sur la température...
 
+
+\vspace*{11pt}
+
+\subsection{Description par des champs}
+
+Pour rentrer dans des considérations plus théoriques on considère un système physique en dimension $d$ et symétrique par le groupe de rotation $O(N)$. Il peut alors être décrit par un champ $\varphiv$ de $W^{2,4}(\R^d, \R^N)$. Toutes les informations que l'on peut souhaiter avoir sur ce système sont, dès lors, contenu dans sa fonction de partition dont l'expression purement formelle est 
 \begin{equation}
-\Zc[\hv] = \int \Dr \varphiv e^{-H[\varphiv] + \int_{\R^d} \hv \varphiv} 
+\Zc[\hv] = \int \Dc \varphiv \, e^{-S[\varphiv] + \int_{\R^d} \hv \varphiv} 
 \end{equation} 
 
-Où l'intégrale est une intégrale fonctionnelle, sur l'ensemble des champs $\varphiv$ possibles. $\hv$ représente une exitation extérieure, $H[\varphiv]$ est le hamiltonien du système (prenant en compte la dépendance en température).\\
+Où l'intégrale est une intégrale fonctionnelle, sur l'ensemble des champs $\varphiv$ possibles, $\hv$ représente une exitation extérieure et $S[\varphiv]$ est le hamiltonien du système. Dans le modèle $\varphiv^4$ qui ne prend en compte que les termes de plus bas ordre jouant effectivement un role important et compatible avec la symétrie $O(N)$ du système physique, ce hamiltonien s'écrit : 
+\begin{equation}
+  S[\varphiv] = \int_{\R^d} \left\{ \frac{1}{2} (\nabla \varphiv)^2 + \frac{r_0}{2}\varphiv^2  + \frac{u_0}{4!} {(\varphiv^2)}^2 \right\} \dd^d \xv
+\end{equation}
 
-Cependant, les intégrales fonctionnelles ne sont que des objets formels sur lesquels il est impossible de réaliser une résolution analytique ou numérique directelemnt. L'objectif du groupe de renormalisation est ainsi de parvenir à calculer, sous certaines approximations, des grandeurs ratachées à cette fonction de partition, contenant l'information souhaitée. 
+Avec $r_0 = \bar{r_0}(T-T_0)$ un paramètre dépendant linéairement de la température et $u_0$ qui en est indépendant. Cependant, les intégrales fonctionnelles ne sont que des objets formels sur lesquels il est impossible de réaliser une résolution analytique ou numérique directelemnt. L'objectif du groupe de renormalisation est ainsi de parvenir à calculer, sous certaines approximations, des grandeurs ratachées à cette fonction de partition, contenant l'information souhaitée. 
 
-\pagebreak
+\vspace*{11pt}
+
+
+\subsection{Grandeurs thermodynamiques}
+
+A partir de la fonction de partition il est possible de regarder un certain nombre de grandeurs thermodynamiques. Tou d'abord on défini l'énergie libre comme étant : 
+\begin{equation}
+  W[\hv] = \text{ln}{Z[\hv]}
+\end{equation}
+
+Par un transformation de Legendre on exprime alors le potentiel de Gibbs
+\begin{equation}
+  \Gamma [\phiv] = - W[\hv] + \int_{\R^d} \hv \phiv \, \dd^d \xv
+\end{equation}
+
+Avec la définition 
+\begin{equation}
+  \phiv[\xv, \hv] = \left< \varphiv(\xv) \right> = \derd{W[\hv]}{\hv(\xv)}
+\end{equation}
+
+On peut alors exprimer simplement la fonction de correlation à $n$ points (grandeur très interessante puisqu'observable expérimentalement) comme étant 
+\begin{equation}
+  G^{(n)}_{\{i_j\}} [\{\xv_{j}\} ; \hv] = \derd{^n W[\hv]}{h_{i_1}(\xv_1) ... \delta h_{i_n}(\xv_n)}
+\end{equation}
+
+De même on défini 
+\begin{equation}
+  \Gamma^{(n)}_{\{i_j\}} [\{\xv_{j}\} ; \phiv] = \derd{^n \Gamma[\phiv]}{\phi_{i_1}(\xv_1) ... \delta \phi_{i_n}(\xv_n)}
+\end{equation}
+
+On peut alors montrer, au sens de l'inverse d'opérateur comme défini en annexe, 
+\begin{equation}
+  G^{(2)}[\hv] = \(\Gamma^{(2)}[\phiv]\)^{-1}  
+\end{equation}
+
+
+\vspace*{11pt}
+
+\subsection{Théorie de champ moyen, dimension anormale et longueur de Ginzburg}
+
+
+Une première arppoche pour résoudre ce type de problème est d'aborder une théorie de champ moyen. Pour ce faire on considère $\varphiv_0$ tel que 
+\begin{equation}
+ \forall i \in \bbrac{1,N} \quad  {\left. \derd{S[\varphiv]}{\varphi_i} \right|}_{\varphiv_0} - h_i = 0
+\end{equation}
+
+L'approximation de champ moyen (MF) consiste à écrire une expression approchée de la fonction de partition, comme une approximation de point-col, 
+\begin{equation}
+  \Zc_{\text{MF}}[\hv] \simeq \exp{\left(-S[\varphiv_0] + \int_{\R^d} \hv \varphiv_0 \dd^d \xv\right)}.
+\end{equation}
+
+On considère alors que le champ se trouve dans l'état $\varphiv_0$. Cette approximtion ne tient donc, par définition, compte des fluctuations du champs. Or lorsque l'on étudie leur comportement le théorème de Marmin-Wagner nous montre que pour $d\le 2$ et $N \ge 2$ le système décrit par l'hamiltonien précédent ne pourra pas présenter de transition de phase (le système sera toujours dans une phase désordonnée - symétrique) alors que la théorie de champ moyen en prédit une. Ainsi nous pouvons dire que $d_c^-=2$ est la dimension critique inférieure en dessous de laquelle le modèle champ moyen ne peut être vrai. Dans le cas $N=1$ on montre $d_c^-=1$, (i.e. le modèle d'Ising). \\
+
+On montre qu'il existe aussi une dimension critique supérieur à partir de laquelle on sait que la théorie de champ moyen sera vraie, on la note $d_c^+$. En revanche les choses sont plus compliquées pour ce qu'il se passe entre ces deux dimensions. En effet on va bien se retrouver avec une phase ordonnée mais la théorie de champ moyen ne sera pas en mesure de décrire le comportement critique du système. Des que la longueur de correlation $\xi$ sera supérieure aproximativement à une longueur dite de Ginzburg $\xi_G$, les fluctuations du champs joueront un role non négligeable. On met en évidence expérimentalement que des lors la longueur de correlation évolue en $\xi \sim |T-T_c|^{d-2-\eta}$ avec $\eta \neq 0$ appelée la dimension anormale. La théorie de champ moyen donne, par simple analyse dimensionnelle, obligatoirement $\eta = 0$. 
+
+\vspace*{11pt}
+
+\subsection{Approximation Gaussienne, developpement en nombre de boucles}
+
+\subsubsection{Cas de la phase ordonnée à $\hv=0$}
+
+Dans la phase désordonée ($r_0 < 0$), le champ est constant, on trouve alors que $\varphiv_0^2 = -6r_0/u_0$. Il est possible de développer à l'ordre supérieur la théorie de champ moyen en utilisant l'approximation Gausienne. C'est d'ailleur cette approximation qui nous renseigne quant à l'importance des fluctuations du champ dans le cas $d_c^- < d < d_c^+$. Pour ce faire nous allons utiliser le développement de Taylor fonctionnel de $S$ dans à l'ordre 2, avant de montrer dans un second temps que l'on peut aussi simplement ecrire son expression exacte autour de $\varphiv_0$. On écrit alors $\psiv = \varphiv -\varphiv_0$. Ainsi, en $\mathcal{O}(\psiv^3)$, 
+\begin{equation}
+  \Zc_G  \propto \int \Dc \psiv \, e^{- \frac{1}{2}\iint \psiv(\xv) S^{(2)}[\varphiv_0, \xv, \yv] \psiv(\yv) \dd^d \xv \dd^d \yv}
+\end{equation}
+
+Où l'on a posé
+\begin{equation}
+S^{(2)}[\varphiv_0, \xv, \yv] = {\left. \derd{^2 S}{\varphiv(\xv)\delta\varphiv(\yv)} \right|}_{\varphiv = \varphiv_0 }
+\end{equation}
+
+Posons la nouvelle action
+\begin{equation}
+ \tilde{S}[\psiv] = \frac{1}{2} \iint \psiv(\xv) S^{(2)}[\varphiv_0, \xv, \yv] \psiv(\yv) \dd^d \xv \dd^d \yv
+\end{equation}
+
+Alors, tout calcul fait, 
+\begin{equation}
+\begin{split}
+  \tilde{S}[\psiv] = \int_{\R^d} \left\{ \frac{1}{2} (\nabla \psiv)^2 + \frac{1}{2} r_0 \psiv^2 + \frac{u_0}{4}\varphiv_0^2\psiv^2 \right\} \, \dd^d \xv
+\end{split}
+\end{equation}
+
+Il vient, avec l'expression de $\varphiv_0^2$
+\begin{equation}
+  \tilde{S}[\psiv] = \int_{\R^d} \left\{ \frac{1}{2} (\nabla \psiv)^2 - r_0 \psiv^2 \right\} \, \dd^d \xv
+\end{equation}
+
+Ainsi la fonction de partition en $\mathcal{O}(\psiv^3)$ est 
+\begin{equation}
+  \Zc_G \propto \int \Dc \psiv \exp{\left( \int_{\R^d} \left\{ \frac{1}{2} (\nabla \psiv)^2 - r_0 \psiv^2 \right\} \, \dd^d \xv \right)}
+\end{equation}
+
+Cependant comme l'expression de $S$ est polynomiale on n'est pas du tout obligé de passé par l'expression de la dérivée fonctionnelle seconde et on peut directement developper $S$ autour de $\varphi_0$. On obtient alors un résultat exact au delà de l'approximation Gaussienne.
+\begin{equation}
+\begin{split}
+  S[\varphiv_0 + \psiv] = \text{Cte} + \int_{\R^d} \left\{ \frac{1}{2} (\nabla \psiv)^2 - r_0 \psiv^2 \right\} + \\ + \int_{\R^d} \left\{ \sqrt{-\frac{r_0 u_0}{6}} \ev_{\varphiv_0} \psiv^3 + \frac{u_0}{4!}\psiv^4 \right\} \, \dd^d \xv
+\end{split}
+\end{equation}
+
+Où $\ev_{\varphiv_0}$ est le vecteur unitaire direction de $\varphiv_0$.  On remarque alors l'apparition d'un terme cubique qui n'est pas problématique puisque dans la phase ordonnée la symétrie est de toute manière brisée. Pour aller plus loin dans le calcul il est alors possible, par la suite, de faire un développement perturbatif en puissances de $u_0$. 
+
+\vspace*{11pt}
+
+\subsubsection{Cas de la phase désordonnée à $\hv=0$}
+
+
+Dans le cas de la phase désordonnée ($r_0 > 0$) on a $\varphiv_0 = 0$ dans l'approximation de champ moyen. Il est alors possible de refaire le même raisonnement que précédemment dans ce cas là. L'approximation gaussienne nous donne alors, en $\mathcal{O}(\psiv^3)$
+\begin{equation}
+  \Zc_G \propto \int \Dc \psiv \exp{\left( \int_{\R^d} \left\{ \frac{1}{2} (\nabla \psiv)^2 + \frac{1}{2} r_0 \psiv^2 \right\} \, \dd^d \xv \right)}
+\end{equation}
+
+Comme on pouvait s'y attendre on a simplement ici supprimé la contribution du terme quartique, et l'approximation gaussienne nous ramène au modèle gaussien du modèle. En revanche pour pouvoir aller plus loins, si l'on consièdre la fonction de particion exacte alors il n'y a encore pas d'autre choix ici que de faire un développement perturbatif en puissance de $u_0$.
+
+
+
+\vspace*{11pt}
+
+\subsubsection{Cas à $\hv \neq 0$}
+
+
+
+
+
+
+
+
+\section{Le groupe de renormalisation}
+
+\subsection{L'idée générale}
+
+Comme mentionné dans l'introduction, ce qui nous interesse ici c'est d'étudier le comportement du système lorsque l'on est proche du point critique et donc que les échelles de longeurs qui entrent en jeu deviennent infinies. 
+
+\subsection{Les équations de flot}
+
+\begin{equation}
+\partial_t \hat{\Gamma}_{k,ij}[\pv; \phiv] = \frac{1}{2} \int_{\R^d} \partial_t \hat{\Rc}(\qv) {\left(\gamcf{2}{k, ij}{\qv, -\qv; \phiv} + \hat{\Rc}(\qv)\right)}^{-1} \frac{\dd^d \qv}{(2\pi)^d}
+\end{equation}
+
+
+\section{L'approximation BMW}
+
+
+Il est facile de constater que l'équation de flot obtenue n'est toujours pas soluble numériquement. En effet, \gamp{2}{k,ij}{\pv, \phiv} dépend de \gamp{3}{k,..}{.., \phiv} et \gamp{4}{k, ..}{.., \phiv} et de façon générale on montre facilement que \gam{n}{k} dépend de \gam{n+1}{k} et \gam{n+2}{k}. Nous nous trouvons donc avec un ensemble d'équations couplées ouvert, qui ne peut avoir de solution. Ceci est un résultat général des problèmes à $\mathcal{N}$ corps. L'idée est alors d'utiliser des approximations pour rendre le système d'équation fermé et soluble. \\
+
+Une première grande classe d'approximation est appellé l'expension dérivative (DE). On part d'un ansatz pour $\Gamma_k$ choisi comme un développement selon les dérivées de $\phiv$ autour des impulsions faible. L'objectif derrière ceci est de retrouver malgrès une troncation de $\Gamma_k$ la physique du point critique (au faibles impulsions) que l'on veut décrire. Ceci est réalisable en pratique grace à $\mathcal{R}_k$ des équations de flots qui vient supprimer dans les intégrales les grandes impulsions et qui permet d'avoir un dépéndance régulière de $\Gamma_k$ avec l'impulsion. \\
+
+La seconde approximation possible est celle développée par Blaizot-M-W (BMW) et qui permet de ne pas forcément se placerà faible impulsions (et récuperer ainsi plus d'informations physique). 
+
+
+
+\bibliographystyle{plain}
+\bibliography{notes}
+
+
+\newpage
+\null
+\newpage
 
 \appendix
 
@@ -333,6 +505,58 @@ Il vient directement le résultat.
    \derd{\hat{F}}{\hat{\phiv}(-\pv)}(\qv_1, \qv_4) = - \int_{\R^d} \int_{\R^d} \hat{F}^{-1}(\qv_1, -\qv_2) \derd{\hat{F}}{\hat{\phiv}(-\pv)}(\qv_2, \qv_3) \hat{F}^{-1}(-\qv_3, \qv_4) \dd^d \qv_2 \dd^d \qv_3
 \end{equation}
 
+
+
+\pagebreak
+
+\begin{multicols}{2}
+
+\section{Methode formelle de recherche des exposants critiques}
+
+Soit $U \in D = H_1(]-\infty, 0], H_2(\R))$, avec $H_1$ et $H_2$ deux espaces de Hilbert. Soit $f$ un opérateur agissant de $D$ dans $\R$. On suppose que $\text{Ker}f$ est réduit à un singleton (hypothèse fondamentale du RG). On suppose de plus que $f$ dépend continument de la fonction en laquelle elle est évaluée (autre hypotèse du RG). On note l'équation de flot de $U$ :
+\begin{equation}
+  \forall (t, x) \in ]-\infty, 0]\times\R \quad \partial_t U(t,x) = f[U(t, x)]
+\end{equation}
+
+On note point fixe de $U$ la grandeur $U^*=\text{Ker}f$. De l'équation précédente, il vient directement que $\partial_t U^*(t, x) = 0$ et aisni $U^*$ ne dépend pas de $t$. De plus par l'hypothèse de continuité nous pouvons linéaiser l'équation précédente autour du point fixe à l'ordre 1. Soit $(t, x) \in ]-\infty, 0]\times\R$, on note $\delta U(t,x) = U(t,x) - U^*(x)$ : 
+
+\begin{equation}
+  \partial_t \delta U(t,x) \simeq \int_{\R} {\left. \derd{f[U]}{U(t,x)} \right|}_{U(t,x) = U^*(x)}  \delta U(t, x) \dd x 
+\end{equation}
+
+On pose un nouvel opérateur A défini de $D$ dans $\R$ : 
+
+\begin{equation}
+  A = \int_{\R} {\left. \derd{f[U]}{U(t,x)} \right|}_{U(t,x) = U^*(x)} \quad . \quad \dd x
+\end{equation} 
+
+Ainsi nous supposons maintenant que $A$ est diagonalisable dans $H_2$ et possède un spectre discret de valeurs propres réelles. De plus on suppose que les vecteurs propres forment une base hilbertienne de l'espace considéré. Ainsi nous posons $\left\{ \lambda_i\right\}_{i\in\N}$ l'ensemble des valeurs propres rangées dans l'ordre décroissant et $\left\{ w_i\right\}_{i\in\N}$ l'ensemble des vecteurs propres associées. Alors, 
+\begin{equation}
+  \delta U(t,x) = \sum_{i\in\N} (\delta U(t, .),  w_i(.))_{H_2} w_i(x).
+\end{equation}
+
+On note $h_i : t \rightarrow (\delta U(t, .),  w_i(.))_{H_2}$. Ainsi,
+\begin{equation}
+  \sum_{i\in\N} \partial_t h_i(t) w_i(x) = \sum_{i\in\N} \lambda_i  h_i(t) w_i(x)
+\end{equation}
+
+Il vient alors 
+\begin{equation}
+  \forall i \in \N \quad h_i(t) = h_i(0) e^{-\lambda_i t}.
+\end{equation}
+
+D'ou l'expression de la solution, 
+\begin{equation}
+  U(t,x) = U^*(x) + \sum_{i\in \N} h_i(0)e^{-\lambda_i t}w_i(x).
+\end{equation}
+
+
+En pratique la fonction $U$ aura été echantillonée pour pouvoir adopter une résolution numérique. Les opérateurs devienne alors des matrices. De plus dans les faits, nous ne pouvons pas appliquer un tel formalisme et la méthode sera utilisée puis justifiée a posteriori par les resultats trouvés. En effet, par exemple, rien ne nous assure la diagonalisabilité du spectre de $A$ ainsi que les propriétés supposée de son spectre de manière générale.\\
+
+Ce sont les valeurs propres trouvées et notamment celles qui sont positives qui nous permettent de determiner un certains nombre des exposants critiques. Nous
+
+
+\end{multicols}
 
 
 \end{document}

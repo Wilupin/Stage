@@ -1,0 +1,20 @@
+# depslib dependency file v1.0
+1460987798 source:/users/invites/leonard/BMWON/function.cpp
+	"initialisationEtDichotomie.h"
+	"function.h"
+	"deriveesEtEquations.h"
+
+1460987511 /users/invites/leonard/BMWON/initialisationEtDichotomie.h
+	<stdio.h>
+	<stdlib.h>
+	<math.h>
+	<vector>
+	<omp.h>
+	<iostream>
+	<fstream>
+	<string>
+
+1460987843 /users/invites/leonard/BMWON/function.h
+
+1460987889 /users/invites/leonard/BMWON/deriveesEtEquations.h
+
