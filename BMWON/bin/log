@@ -1,0 +1,8 @@
+Programme BMW O(n = 2) en d = 2 (v03.12.15)
+nppp = 20;	 nrho = 100;	 ngauleg = 40
+pmax = 6;	 rhomax = 10;	 qInt = 4
+alpha = 2;	 u0 = 0.001
+Prescription Ya(0.235559 , 0.5 ) = 0.0
+On parallélise sur 6 processeurs.
+
+-0	0	-0.016	100
