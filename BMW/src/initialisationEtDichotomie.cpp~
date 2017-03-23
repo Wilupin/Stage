@@ -1,0 +1,215 @@
+#include "initialisationEtDichotomie.h"
+
+
+// First function called on main
+// On passe les valeurs par reference
+void ReadAndInitialise(GammaAndDerivatives & gamma, GaussLegendre & gausslegvar,
+		       DichoParameter & dichoprm)
+{
+
+  
+  // Erase preivous data in data directory
+  system("rm -f ../data/*");
+  ofstream log("log");
+
+  
+  
+  // Open the file of initialisation data
+  ifstream dataIni;
+  dataIni.open("../Input/data.ini", std::ifstream::in);
+  if(dataIni.fail())
+    {
+      log << "erreur : fichier d'entree introuvable !!\n" << endl;
+      log.close();
+      exit(0);
+    }
+  
+  // Definition of the number of threads for OMP prallelism
+  int NUM_THREADS = 0;
+
+
+
+  
+  // Read initialisation data
+  
+  double nbis, alphabis, dbis;
+  int tmaxbis, ompOnbis;
+
+  string chaine="";
+  getline(dataIni,chaine);
+  dataIni>>dbis>>nbis>>alphabis>>dichoprm.u0
+	 >>dichoprm.rmin>>dichoprm.rmax>>dichoprm.rht>>dichoprm.rlt
+	 >>dichoprm.OnOff>>tmaxbis>>ompOnbis>>NUM_THREADS;
+  dataIni.close();
+
+
+
+  // Values of GaussLegendre attributes
+  gausslegvar.set_alpha(alphabis);
+  gausslegvar.set_d(dbis);
+
+  
+  // Values of gamma attributes
+  gamma.set_d(gausslegvar.get_d());
+  // gamma.set_pPrescription(nppp-1);
+  // gamma.set_rhoPrescription(5);
+  gamma.set_pPrescription(5);
+  gamma.set_rhoPrescription(5);
+  gamma.set_n(nbis);
+  gamma.set_ompOn(ompOnbis);
+  gamma.set_tmax(int(tmaxbis));
+
+
+  
+  std::cout << "tmax bis " << tmaxbis << std::endl;
+  std::cout << "rmax " << ompOnbis << std::endl; 
+  std::cout << gausslegvar.get_d() << " " << nbis << " " << gausslegvar.get_alpha() << " "
+	    << dichoprm.u0 << " " << dichoprm.rmin << " " << dichoprm.rmax << " "
+	    << dichoprm.rht << " " << dichoprm.rlt << " " << dichoprm.OnOff << " "
+	    << tmaxbis << " " << ompOnbis << " "<< NUM_THREADS << std::endl; 
+  
+
+  
+  // Write in file log the values read
+  log<<"Programme BMW O(n = "<<gamma.get_n()<<") en d = "<<gausslegvar.get_d()<<" (v03.12.15)"<<endl;
+  log<<"nppp = "<<nppp<<";\t nrho = "<<nrho<<";\t ngauleg = "<<ngausslegendre<<endl;
+  log<<"pmax = "<<p_max<<";\t rhomax = "<<rho_max<<";\t qInt = "<< qInt<<endl;
+  log<<"alpha = "<<gausslegvar.get_alpha()<<";\t u0 = "<<dichoprm.u0<<endl;
+
+  // Roots of the Chebychev polynom of degree npcheb
+  Chebychev::getInstance()->ChebRoot("../data/ppp",npcheb,npchebev,p_min,p_max);
+
+
+  log << "Prescription Ya(" <<Chebychev::getInstance()->get_xcheb(gamma.get_pPrescription())<<" , "
+      << gamma.get_rhoPrescription()*drho <<" ) = 0.0"<<endl;
+
+
+  // Initialisation des points d'integration de Gauss Legendre
+  GaussLegendre::gaulegWeightAbscissas(gausslegvar); 
+
+
+  // Initialiser dichoprm structure
+  dichoprm.tht    = 0;
+  dichoprm.tlt    = 0;
+  dichoprm.nrun   = 0;
+  dichoprm.avc    = 1; // Initialisement 0
+  dichoprm.tttavc = 80000;
+  dichoprm.seuil  = 1e-8;
+
+
+
+  if(gamma.get_ompOn())
+    {
+      omp_set_num_threads(NUM_THREADS);
+      log<<"On parallélise sur "<<NUM_THREADS<<" processeurs.\n"<<endl;
+    }
+  log.close();
+}
+
+
+
+
+
+
+
+
+
+int initialising(GammaAndDerivatives& gamma, DichoParameter & dichoprm)
+{
+  dichoprm.nrun++;
+
+  if(dichoprm.avc)
+    {
+      dichoprm.r0 = 0.5*(dichoprm.rmax + dichoprm.rmin);
+      gamma.set_eta(dichoprm.eta_avc);
+      gamma.set_Zk(dichoprm.Zk_avc);
+      gamma.set_kk(exp(dichoprm.tttavc*dtt));
+
+      
+      for(int iii = 0; iii <= nrho; iii++)
+        {
+	  
+	  gamma.set_WWW_rho(dichoprm.WWW_rho_avc[iii]+dichoprm.r0-dichoprm.w0_avc, iii);
+	  
+	  for(int ipp = 0; ipp < nppp; ipp++)
+	    {
+	      gamma.set_YYYa_p_rho(dichoprm.YYYa_p_rho_avc[ipp][iii], ipp, iii);
+	      gamma.set_YYYb_p_rho(dichoprm.YYYb_p_rho_avc[ipp][iii], ipp, iii);
+	    }
+	  
+        }
+  
+
+      return dichoprm.tttavc;
+    }
+  else
+    {
+      dichoprm.r0 = 0.5*(dichoprm.rmax + dichoprm.rmin);
+      gamma.set_eta(0.0);
+      gamma.set_Zk(1.0);
+      gamma.set_kk(1.0);
+      
+      for(int iii = 0; iii <= nrho; iii++)
+        {
+		
+	  gamma.set_WWW_rho(dichoprm.r0 + dichoprm.u0*iii*drho, iii);
+	  
+	  for(int ipp = 0; ipp < nppp; ipp++)
+	    {
+	      gamma.set_YYYa_p_rho(0.0, ipp, iii);
+	      gamma.set_YYYb_p_rho(0.0, ipp, iii);
+	    }
+        }
+      return 0;
+    }
+}
+
+
+
+
+
+
+int dichotomie(double w0, DichoParameter & dichoprm, int ttt, ofstream & log)
+{
+  ofstream w0etaout("data/w0eta",ios::app);
+  w0etaout<<endl;
+  w0etaout.close();
+
+  if(w0<dichoprm.rlt)
+    {
+      if(ttt>dichoprm.tlt)
+        {
+	  log<<"Dichotomie à t = "<<ttt*dtt<<endl<<"Phase basse temperature rmin -> r0 "<<endl;
+	  dichoprm.tlt = ttt;
+	  dichoprm.rmin = dichoprm.r0;
+        }
+      else
+        {
+	  log << "La dichotomie n'avance plus, fin du programme!"<<endl;
+	  log << "Paramètre dichotomie fin :\n rmin = " << dichoprm.rmin
+	      << ",\n rmax = " << dichoprm.rmax<<",\n u0 = " << dichoprm.u0<<",\n tht = "
+	      << dichoprm.tht<<",\n tlt = " << dichoprm.tlt<<endl;
+	  log.close();
+	  exit(0);
+        }
+    }
+  else
+    {
+      if(ttt>dichoprm.tht)
+        {
+	  log<<"Dichotomie à t = "<<ttt*dtt<<endl<<"Phase haute temperature rmax -> r0"<<endl;
+	  dichoprm.tht = ttt;
+	  dichoprm.rmax = dichoprm.r0;
+        }
+      else
+        {
+	  log <<"La dichotomie n'avance plus, fin du programme!"<<endl;
+	  log <<"Paramètre dichotomie fin :\n rmin = " << dichoprm.rmin<<",\n rmax = "
+	      << dichoprm.rmax<<",\n u0 = " << dichoprm.u0<<",\n tht = "
+	      << dichoprm.tht<<",\n tlt = " << dichoprm.tlt<<endl;
+	  log.close();
+	  exit(0);
+        }
+    }
+  return -1;
+}

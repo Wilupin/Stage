@@ -1,0 +1,69 @@
+#include "GammaAndDerivatives.h"
+
+
+#define p_max 6
+#define p_min -6
+#define nppp 20
+#define npcheb 2*nppp
+#define npchebev int(3*npcheb/4)
+
+#define rho_min 0.0
+#define rho_max 10.0
+#define drho 0.1
+#define nrho int((rho_max-rho_min)/drho)
+
+
+#define dtt -1.0e-4
+#define pprecision 1e-15
+#define qInt 4
+#define ngausslegendre 40
+#define EPS 3.0e-14
+#define trigavc 1e-10
+
+using namespace std;
+
+
+// Structure :: data for dichotomie procedure
+typedef struct DichoParameter
+{
+  double r0, u0, eta_avc, w0_avc, Zk_avc;
+  double rmin, rmax, rht, rlt, seuil;
+  int OnOff, tht, tlt, nrun, avc, tttavc;
+  vector < vector<double> > YYYa_p_rho_avc,YYYb_p_rho_avc;
+  vector<double> WWW_rho_avc;
+}DichoParameter;
+
+
+
+void gaulegWeightAbscissas(GaussLegendre& gausslegvar);
+double normalisationIntegrale(double d);
+
+void ReadAndInitialise(GammaAndDerivatives & gamma,
+		       GaussLegendre & gausslegvar,
+		       DichoParameter & dichoprm);
+
+int initialising(GammaAndDerivatives& gamma, DichoParameter & dichoprm);
+int dichotomie(double w0, DichoParameter & dichoprm, int ttt, ofstream & log);
+
+
+inline int set_irho_0(vector<double> www)
+{
+    double wi=www[0],wip1=www[1];
+    int iii = 0;
+    while(!(wi<=0&&wip1>0)&&iii<nrho) iii++, wi=www[iii], wip1=www[iii+1];
+    return iii;
+}
+
+inline void OutEtaW0(int ttt, double eta, double w0, int irho0)
+{
+    ofstream w0etaout("../data/w0eta",ios::app);
+    w0etaout.precision(16);
+    w0etaout<<ttt*dtt<<"\t"<<eta<<"\t"<<w0<<"\t"<<irho0<<endl;
+    w0etaout.close();
+}
+
+inline double SetKd(double d)
+{
+    return pow(2,1-d)*pow(M_PI,-d/2)*pow(d*tgamma(d/2),-1);
+}
+

@@ -1,0 +1,203 @@
+#include "initialisationEtDichotomie.h"
+#include "function.h"
+#include "deriveesEtEquations.h"
+#define IterMAX 1000
+
+
+// Calculation of Chebytchev coeff for the gamma functions
+void CoeffChebgamma(GammaAndDerivatives & gamma,int OmpOnOff)
+{
+    //On actualise les coefficients chebyshev
+    #pragma omp parallel for if(OmpOnOff)
+    for(int iii = 0 ; iii <= nrho; iii++)
+      {
+	Chebychev::getInstance()->CoeffCheb2(gamma.YYYa_p_rho, gamma.chebcoef_YYYa_rho_p, iii);
+	Chebychev::getInstance()->CoeffCheb2(gamma.YYYb_p_rho, gamma.chebcoef_YYYb_rho_p, iii);
+      }
+}
+
+
+
+
+
+// Calculation of derivatives in "rho = rho[iii]" and with the spectral method in p
+void Derivation(GammaAndDerivatives& gamma, int iii)
+{
+  
+  // Calculation of Chebytchev coefficients for YYYa_rho_p and YYYb_rho_p
+  Chebychev::getInstance()->multiCoeffCheb2_2(gamma.YYYa_p_rho, gamma.chebcoef_YYYa_rho_p,gamma.YYYb_p_rho, gamma.chebcoef_YYYb_rho_p,iii);
+
+  // Derivative of YYYa_rho_p and YYYb_rho_p with respect to p (using Chebytchev polynoms)
+  mulitchder_2(gamma.chebcoef_YYYa_rho_p[iii],gamma.chebcoef_YYYap1_rho_p[iii],gamma.chebcoef_YYYb_rho_p[iii],gamma.chebcoef_YYYbp1_rho_p[iii]);
+
+
+  // Derivative of WWW1_rho and WWW2_rho (which does not depend on p) with respect to rho
+  gamma.WWW1_rho[iii] = derivePrm(gamma.WWW_rho,iii,nrho);
+  gamma.WWW2_rho[iii] = deriveScd(gamma.WWW_rho,iii,nrho);
+  
+  // Derivative with respect to rho for each given p of the other functions 
+  for(int ipp = 0; ipp < nppp; ipp++)
+    {
+      // Derivatives of the integrals
+      gamma.JJJ3LL_p_rho[ipp][iii] = 0.0;
+      gamma.JJJ3TT_p_rho[ipp][iii] = 0.0;
+      gamma.JJJ3LT_p_rho[ipp][iii] = 0.0;
+      gamma.JJJ3TL_p_rho[ipp][iii] = 0.0;
+
+      // Derivatives of the functions
+      gamma.YYYa1_p_rho[ipp][iii] = derivePrm(gamma.YYYa_p_rho[ipp],iii,nrho);
+      gamma.YYYa2_p_rho[ipp][iii] = deriveScd(gamma.YYYa_p_rho[ipp],iii,nrho);
+      gamma.YYYb1_p_rho[ipp][iii] = derivePrm(gamma.YYYb_p_rho[ipp],iii,nrho);
+      gamma.YYYb2_p_rho[ipp][iii] = deriveScd(gamma.YYYb_p_rho[ipp],iii,nrho);
+    }
+  
+  Chebychev::getInstance()->multiCoeffCheb2_2(gamma.YYYa1_p_rho, gamma.chebcoef_YYYa1_rho_p,gamma.YYYb1_p_rho, gamma.chebcoef_YYYb1_rho_p,iii);
+
+}
+
+
+
+
+
+
+
+// Integrals calculation
+void Integrals(GaussLegendre gausslegvar, GammaAndDerivatives & gamma, int iii)
+{
+  double bpaq1 = 0, bmaq1 = qInt, bpaq2 = 0.5*qInt, bmaq2 = 0.5*qInt;
+  double q1, q2, p, qsqr, facReg, propgl, propgt, auxl, auxt, yya, yyb, yyb1, yya1;
+
+  double mk2    = gamma.WWW_rho[iii] + 2*iii*gamma.WWW1_rho[iii]; // WARNING !!
+  double www    = gamma.WWW_rho[iii];
+  double www1   = gamma.WWW1_rho[iii];
+    
+  double int2ll = 0.0, int2tt = 0.0, int3ll = 0.0;
+  double int3tt = 0.0, int3lt = 0.0, int3tl = 0.0;
+  double inta   = 0.0, int1p = 0.0;
+    
+  double yamax, ybmax,ya_p,yb_p;
+
+  // Value of Ya and Yb en rho(iii) et pmax
+  Chebychev *singleCheb = Chebychev::getInstance();
+  singleCheb->multichebev_2(gamma.chebcoef_YYYa_rho_p[iii],gamma.chebcoef_YYYb_rho_p[iii],yamax,ybmax,p_max);
+
+
+  // Main integration loop
+  for(int jjj=1;jjj<=gausslegvar.ngl;jjj++)
+    {
+      // Variable de la premiere integrale
+      q2 = (bpaq2+bmaq2*gausslegvar.x[jjj]);
+      
+      for(int kkk=1;kkk<=gausslegvar.ngl;kkk++)
+	{
+	  // Variable de la seconde integrale
+	  q1 = (bpaq1+bmaq1*gausslegvar.x[kkk]);
+	  qsqr = pow(q1,2)+pow(q2,2);
+
+	  facReg = gausslegvar.w[jjj]*gausslegvar.w[kkk]*pow(q2,gausslegvar.d-2)*sss(qsqr,gausslegvar.alpha,gamma.eta);
+
+	  singleCheb->multichebev_4(gamma.chebcoef_YYYa_rho_p[iii],gamma.chebcoef_YYYb_rho_p[iii],
+			gamma.chebcoef_YYYa1_rho_p[iii],gamma.chebcoef_YYYb1_rho_p[iii],
+			yya,yyb,yya1,yyb1,sqrt(qsqr));
+
+	  // Propagators (Longitudinal and transversal)
+	  propgl = pow( regulator(qsqr,gausslegvar.alpha) + qsqr*( 1 + yya + 2*iii*drho*yyb ) + mk2,-1 ) ;
+	  propgt = pow( regulator(qsqr,gausslegvar.alpha) + qsqr*( 1 + yya ) + www,-1 ) ;
+
+	  auxl = facReg*pow(propgl,2);
+	  auxt = facReg*pow(propgt,2);
+
+	  int1p += -(gamma.n-1)*auxt*(qsqr*yya1 + www1)/drho -
+	    auxl*(qsqr*( yya1/drho + 2*yyb + 2*iii*yyb1 ) +
+		  (3*www1 + 2*iii*gamma.WWW2_rho[iii])/drho);
+
+	  inta += facReg*propgl*propgt*(propgl+propgt)*(qsqr*yyb + www1/drho);
+	  int2ll += auxl;
+	  int2tt += auxt;
+	  int3ll += auxl * propgl;
+	  int3tt += auxt * propgt;
+	  int3lt += auxl * propgt;
+	  int3tl += auxt * propgl;
+
+	  
+	  // Loop to compute the integrals J depending on p
+	  for(int ipp=0;ipp<nppp;ipp++)
+	    {
+	      p = singleCheb->get_xcheb(ipp);
+	      qsqr = pow(q1,2) + pow(q2,2) + pow(p,2) + 2*p*q1;
+	      p = sqrt(qsqr);
+
+	      if(p<p_max)
+                {
+		  singleCheb->multichebev_2(gamma.chebcoef_YYYa_rho_p[iii],gamma.chebcoef_YYYb_rho_p[iii],ya_p,yb_p,p);
+		  propgl = pow( regulator(qsqr,gausslegvar.alpha) + qsqr*(1 + ya_p + 2*iii*drho*yb_p) + mk2,-1);
+		  propgt = pow( regulator(qsqr,gausslegvar.alpha) + qsqr*(1 + ya_p) + www,-1);
+                }
+	      else // if p >= p_max
+		{
+		  propgl = pow( regulator(qsqr,gausslegvar.alpha) + qsqr*( 1 + yamax + 2*iii*drho*ybmax ) + mk2,-1);
+		  propgt = pow( regulator(qsqr,gausslegvar.alpha) + qsqr*(1 + yamax) + www,-1);
+		}
+	      gamma.JJJ3LL_p_rho[ipp][iii] += gausslegvar.norme * auxl * propgl;
+	      gamma.JJJ3TT_p_rho[ipp][iii] += gausslegvar.norme * auxt * propgt;
+	      gamma.JJJ3LT_p_rho[ipp][iii] += gausslegvar.norme * auxl * propgt;
+	      gamma.JJJ3TL_p_rho[ipp][iii] += gausslegvar.norme * auxt * propgl;
+            }
+        }
+    }
+
+  // Finalization of the calculation on integrals I
+  gamma.WWWI1_rho[iii] = int1p * gausslegvar.norme;
+  gamma.IIIA_rho[iii] = inta * gausslegvar.norme;
+  gamma.III2LL_rho[iii] = int2ll * gausslegvar.norme;
+  gamma.III2TT_rho[iii] = int2tt * gausslegvar.norme;
+  gamma.III3LL_rho[iii] = int3ll * gausslegvar.norme;
+  gamma.III3TT_rho[iii] = int3tt * gausslegvar.norme;
+  gamma.III3LT_rho[iii] = int3lt * gausslegvar.norme;
+  gamma.III3TL_rho[iii] = int3tl * gausslegvar.norme;
+}
+
+
+
+// Calculation of gamma derivatives and integrals using previous functions
+void DeriveesEtIntegrales(GammaAndDerivatives & gamma, GaussLegendre gausslegvar)
+{
+    #pragma omp parallel for if(gamma.ompOn)
+    for(int iii = 0; iii <= nrho ; iii++) Derivation(gamma,iii), Integrals(gausslegvar,gamma,iii);
+}
+
+
+
+// Function called in main to make one setp forward in time
+void flowstepfoward(GammaAndDerivatives & gamma, ofstream & log)
+{
+    gamma.eta = etastepforward(gamma);
+    
+    #pragma omp parallel for if(gamma.ompOn)
+    for(int iii = 0; iii <= nrho ; iii++)
+    {
+        gamma.WWW_rho[iii] += dtt*flowOfW(gamma,iii);
+	
+        for(int ipp = 0; ipp < nppp; ipp++)
+        {
+            gamma.YYYa_p_rho[ipp][iii] += dtt*flowOfYa(gamma,ipp,iii);
+            gamma.YYYb_p_rho[ipp][iii] += dtt*flowOfYb(gamma,ipp,iii);
+        }
+    }
+    
+    gamma.Zk -= gamma.eta*gamma.Zk*dtt;
+    gamma.YYYa_p_rho[gamma.pPrescription][gamma.rhoPrescription]=0.0;
+}
+
+
+double regulator(double y, double alpha)
+{
+    return alpha*y/(exp(y)-1);
+}
+
+
+double sss(double y, double alpha, double eta)
+{
+    return alpha*y*(-eta+2*y*exp(y)/(exp(y)-1))/(exp(y)-1);
+}
+

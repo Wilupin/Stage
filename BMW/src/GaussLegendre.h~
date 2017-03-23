@@ -1,0 +1,17 @@
+#ifndef DEF_GAUSSLEGENDRE
+#define DEF_GAUSSLEGENDRE
+
+class GaussLegendre
+{
+
+ public:
+
+ private:
+  int ngl;
+  double d, alpha, norme;
+  std::vector<double> w,x
+
+};
+
+
+#endif

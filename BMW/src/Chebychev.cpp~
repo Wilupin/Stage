@@ -1,0 +1,227 @@
+/* ------------------------------
+** 
+** Gaetan Facchinetti
+** Mail : gaetanfacc@gmail.com
+**
+** Created : 21/03/2017
+**
+** -----------------------------*/
+
+// Implementation des fonctions de la classe Chebychev
+
+
+#include "Chebychev.h"
+
+
+// Initialisation du singleton 
+Chebychev *Chebychev::_singletonChebychev = NULL;
+
+
+
+// Initialisation des variables
+void Chebychev::ChebRoot(std::string OutFile, int ncheb, int nevcheb, double x_min, double x_max)
+{
+  n    = ncheb;
+  nev  = nevcheb;
+  xmax = x_max;
+  xmin = x_min;
+  
+  std::ofstream OUTRoot(OutFile);
+  OUTRoot.precision(16);
+  int kkk;
+  double x, bma = 0.5*(xmax-xmin), bpa = 0.5*(xmax+xmin);
+  for(kkk=0;kkk<n;kkk++)
+    {
+      x = cos(M_PI*(kkk+0.5)/n);
+      xcheb.push_back(x*bma+bpa);
+      OUTRoot<<xcheb[kkk]<<std::endl;
+    }
+  
+  OUTRoot.close();
+}
+
+
+
+
+// Calculation of Chebytchev coeff (for single valued functions)
+void Chebychev::CoeffCheb(std::vector<double> const& fff, std::vector<double> & coef_fff, int OmpOnOff)
+{
+
+  // fff is the function we want to decompose (in)
+  // coef_fff are the coeficient of the decomposition (out)
+  
+  double fac = 2.0/n;
+
+  //On actualise les coefficients chebyshev
+  #pragma omp parallel for if(OmpOnOff)
+  for(int jjj=0;jjj<n;jjj++)
+    {
+      double sum = 0.0;
+      for(int kkk=0;kkk<n;kkk++) sum += fff[kkk]*cos(M_PI*jjj*(kkk+0.5)/n);
+      if(jjj!=0) coef_fff[jjj] = fac*sum;
+      else coef_fff[jjj] = sum/n;
+    }
+}
+
+
+
+
+// Calculation of Chebytchev coeff (for double valued functions)
+// This method is strange (it uses the fact that the function is odd but not really) 
+void Chebychev::CoeffCheb2(std::vector < std::vector<double> > const& fff,
+			   std::vector < std::vector<double> > & coef_fff, int iii)
+{
+  double fac = 2.0/n;
+
+  //On actualise les coefficients chebyshev
+
+    for(int jjj=0;jjj<n;jjj++)
+    {
+        double sum = 0.0;
+        for(int kkk=0;kkk<n;kkk++)
+        {
+            if(kkk<n/2) sum += fff[kkk][iii]*cos(M_PI*jjj*(kkk+0.5)/n);
+            else sum += fff[n-kkk-1][iii]*cos(M_PI*jjj*(kkk+0.5)/n);
+        }
+        if(jjj!=0) coef_fff[iii][jjj] = fac*sum;
+        else coef_fff[iii][jjj] = sum/n;
+    }
+}
+
+
+
+
+
+// Calculation of Chebytchev coeff (for double valued functions) for 2 functions
+void Chebychev::multiCoeffCheb2_2(std::vector < std::vector<double> > const& fff1,
+				  std::vector < std::vector<double> > & coef_fff1,
+				  std::vector < std::vector<double> > const& fff2,
+				  std::vector < std::vector<double> > & coef_fff2, int iii)
+{
+    double fac = 2.0/n;
+
+    //On actualise les coefficients chebyshev
+
+    for(int jjj=0;jjj<n;jjj++)
+    {
+        double sum_1 = 0.0, sum_2 = 0.0;
+        for(int kkk=0;kkk<n;kkk++)
+        {
+            if(kkk<n/2)
+            {
+                sum_1 += fff1[kkk][iii]*cos(M_PI*jjj*(kkk+0.5)/n);
+                sum_2 += fff2[kkk][iii]*cos(M_PI*jjj*(kkk+0.5)/n);
+            }
+            else
+            {
+                sum_1 += fff1[n-kkk-1][iii]*cos(M_PI*jjj*(kkk+0.5)/n);
+                sum_2 += fff2[n-kkk-1][iii]*cos(M_PI*jjj*(kkk+0.5)/n);
+            }
+        }
+        if(jjj!=0)
+        {
+            coef_fff1[iii][jjj] = fac*sum_1;
+            coef_fff2[iii][jjj] = fac*sum_2;
+        }
+        else
+        {
+            coef_fff1[iii][jjj] = sum_1/n;
+            coef_fff2[iii][jjj] = sum_2/n;
+        }
+    }
+}
+
+
+
+
+
+
+// Calculation of Chebytchev sum by Clenshaw's algorithm
+double Chebychev::chebev(std::vector<double> const& coef_fff, double const&  x) const
+//Chebyshev evaluation: All arguments are input. c[0..m-1] is an array of Chebyshev coefficients, the first m elements of c output from chebft (which must have been called with the same a and b). The Chebyshev polynomia "m-1 k=0 ckTk(y) − c0/2 is evaluated at a point y = [x − (b + a)/2]/[(b− a)/2], and the result is returned as the function value.
+{
+
+    double dd=0.0,ddd=0.0,sv,y,y2;
+    int j;
+    y2=2.0*(y=(2.0*x-xmin-xmax)/(xmax-xmin)); //Change of variable.
+    for (j=nev-1;j>=1;j--)// Clenshaw’s recurrence.
+    {
+        sv=dd;
+        dd=y2*dd-ddd+coef_fff[j];
+        ddd=sv;
+    }
+    
+    return y*dd-ddd+coef_fff[0];// Last step is different.
+}
+
+
+
+
+
+void Chebychev::multichebev_4(std::vector<double> const& coef_fff1,
+			      std::vector<double> const& coef_fff2,
+			      std::vector<double> const& coef_fff3,
+			      std::vector<double> const& coef_fff4,
+			      double & yy1, double & yy2, double & yy3,
+			      double & yy4, double x)
+  
+{//Evaluation in x of 4 functions approximated by chebyshev polynom
+    double dd_1=0.0,ddd_1=0.0,sv_1,y_1,y2_1;
+    double dd_2=0.0,ddd_2=0.0,sv_2,y_2,y2_2;
+    double dd_3=0.0,ddd_3=0.0,sv_3,y_3,y2_3;
+    double dd_4=0.0,ddd_4=0.0,sv_4,y_4,y2_4;
+    int j;
+    y2_1=2.0*(y_1=(2.0*x-xmin-xmax)/(xmax-xmin)); //Change of variable.
+    y2_2=2.0*(y_2=(2.0*x-xmin-xmax)/(xmax-xmin)); //Change of variable.
+    y2_3=2.0*(y_3=(2.0*x-xmin-xmax)/(xmax-xmin)); //Change of variable.
+    y2_4=2.0*(y_4=(2.0*x-xmin-xmax)/(xmax-xmin)); //Change of variable.
+    for (j=nev-1;j>=1;j--)// Clenshaw’s recurrence.
+    {
+        sv_1=dd_1;
+        dd_1=y2_1*dd_1-ddd_1+coef_fff1[j];
+        ddd_1=sv_1;
+
+        sv_2=dd_2;
+        dd_2=y2_2*dd_2-ddd_2+coef_fff2[j];
+        ddd_2=sv_2;
+
+        sv_3=dd_3;
+        dd_3=y2_3*dd_3-ddd_3+coef_fff3[j];
+        ddd_3=sv_3;
+
+        sv_4=dd_4;
+        dd_4=y2_4*dd_4-ddd_4+coef_fff4[j];
+        ddd_4=sv_4;
+    }
+    
+    yy1=y_1*dd_1-ddd_1+coef_fff1[0];// Last step is different.
+    yy2=y_2*dd_2-ddd_2+coef_fff2[0];// Last step is different.
+    yy3=y_3*dd_3-ddd_3+coef_fff3[0];// Last step is different.
+    yy4=y_4*dd_4-ddd_4+coef_fff4[0];// Last step is different.
+}
+
+
+
+
+void Chebychev::multichebev_2(std::vector<double> const& coef_fff1,
+			      std::vector<double> const& coef_fff2,
+			      double & yy1, double & yy2, double x)
+{//Evaluation in x of 2 functions approximated by chebyshev polynom
+    double dd_1=0.0,ddd_1=0.0,sv_1,y_1,y2_1;
+    double dd_2=0.0,ddd_2=0.0,sv_2,y_2,y2_2;
+    int j;
+    y2_1=2.0*(y_1=(2.0*x-xmin-xmax)/(xmax-xmin)); //Change of variable.
+    y2_2=2.0*(y_2=(2.0*x-xmin-xmax)/(xmax-xmin)); //Change of variable.
+    for (j=nev-1;j>=1;j--)// Clenshaw’s recurrence.
+    {
+        sv_1=dd_1;
+        dd_1=y2_1*dd_1-ddd_1+coef_fff1[j];
+        ddd_1=sv_1;
+
+        sv_2=dd_2;
+        dd_2=y2_2*dd_2-ddd_2+coef_fff2[j];
+        ddd_2=sv_2;
+    }
+    yy1=y_1*dd_1-ddd_1+coef_fff1[0];// Last step is different.
+    yy2=y_2*dd_2-ddd_2+coef_fff2[0];// Last step is different.
+}

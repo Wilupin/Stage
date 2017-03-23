@@ -1,0 +1,18 @@
+#include "Chebychev.h"
+
+
+// Fonctions Chebyshev
+void CoeffChebgamma(GammaAndDerivatives & gamma,int OmpOnOff);
+
+//Fonctions pour intégrales gauss-legendre
+double regulator(double y, double alpha);
+double sss(double y, double alpha, double eta);
+
+
+void Derivation(GammaAndDerivatives& gamma, int iii);
+void Integrals(GaussLegendre gausslegvar, GammaAndDerivatives & gamma, int iii);
+void DeriveesEtIntegrales(GammaAndDerivatives & gamma, GaussLegendre gausslegvar);
+void flowstepfoward(GammaAndDerivatives & gamma, ofstream & log);
+
+
+

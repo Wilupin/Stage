@@ -1,0 +1,6 @@
+Programme BMW O(n = 1) en d = 3 (v03.12.15)
+nppp = 20;	 nrho = 100;	 ngauleg = 40
+pmax = 6;	 rhomax = 10;	 qInt = 4
+alpha = 2.25;	 u0 = 0.006
+Prescription Ya(5.44886 , 0.5 ) = 0.0
+-0	0	-0.016	26

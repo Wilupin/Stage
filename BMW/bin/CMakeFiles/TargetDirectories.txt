@@ -1,0 +1,3 @@
+/users/invites/facchinetti/Documents/Stage/BMW/bin/CMakeFiles/edit_cache.dir
+/users/invites/facchinetti/Documents/Stage/BMW/bin/CMakeFiles/rebuild_cache.dir
+/users/invites/facchinetti/Documents/Stage/BMW/bin/CMakeFiles/exe.dir
