@@ -1,0 +1,57 @@
+#ifndef DEF_INOUT
+#define DEF_INOUT
+
+#include<vector>
+#include<string>
+#include<iostream>
+#include<fstream>
+#include<stdio.h>
+#include<stdlib.h>
+
+
+
+
+class InOut
+{
+
+ public:
+  
+  // Fonctions qui en font un singleton
+  static InOut  *getInstance()
+  {
+    if(NULL == _InOut)
+      {
+	_InOut = new InOut;
+      }
+    return _InOut;
+  }
+
+  static void kill()
+  {
+    if(NULL != _InOut)
+      {
+	delete _InOut;
+	_InOut = NULL;
+      }
+  }
+
+  
+  // Fonctions de classe
+  //std::ifstream const& get_fichierInput() const {return fichierInput;}; 
+  void OutEtaW0(int ttt, double eta, double w0, int irho0, double dt);
+
+  
+ private:
+  InOut(){};
+  ~InOut(){};
+
+  static InOut *_InOut;
+  
+  //std::ifstream fichierInput("../input/data.ini", std::ios::in);
+  
+  
+};
+
+
+
+#endif

@@ -1,0 +1,32 @@
+#ifndef DEF_INITIALISEUR
+#define DEF_INITIALISEUR
+
+
+#include "GammaAndDerivatives.h"
+#include "Parametres.h"
+
+class Initialiseur
+{
+    
+public:
+    
+    // Constructeur et destructeur
+    Initialiseur(){};
+    Initialiseur(GammaAndDerivatives & gamma, Parametres *prm);
+    ~Initialiseur(){};
+
+    
+    // Fonction de classe
+    int Initialising(GammaAndDerivatives& gamma);
+    int set_irho_0(std::vector<double> www);
+    void OutEtaW0(int ttt, double eta, double w0, int irho0);
+    void Setter(GammaAndDerivatives& gamma, std::ofstream& log);
+    
+    
+private:
+    Parametres *prm;
+    
+};
+
+
+#endif

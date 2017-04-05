@@ -1,0 +1,55 @@
+# ----------------------------------------------
+# Fichier d'initialisation des donnees du code
+#
+# Gaetan Facchinetti
+# Mail : gaetanfacc@gmail.com
+#
+# ---------------------------------------------
+
+
+
+
+# Parametres du modele
+d     = 2.0
+n     = 1.0
+alpha = 2.25
+
+# Parametres de temps
+tMax    = 30.0
+tMin    = 0.0
+dt      = -0.0001
+
+# Parametres grille en rho
+rhoMin   = 0.0
+rhoMax   = 10.0
+drho     = 0.1
+
+# Parametres integration Gauss Legendre
+qMax   = 4
+npGL   = 40
+
+# Parametre interpolation Chebychev
+npC    = 20
+pMax   = 6
+pMin   = -6
+
+# Parametres pour calculer eta
+rhoPrescription   = 0
+pPrescription     = 19
+
+# Parametre de parallelisation
+ompOn           = 1
+numberOfThreads = 10
+
+
+
+
+
+# Condition initiale et dichotomie
+dichoOnOff      = 1
+u0              = 0.02
+rmin            = -0.25
+rmax            = 0.0
+rht             = 0.0
+rlt             = -0.45
+

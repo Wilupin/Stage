@@ -1,0 +1,52 @@
+#ifndef DEF_INITIALISEURDICHOTOMIE
+#define DEF_INITIALISEURDICHOTOMIE
+
+#include "GammaAndDerivatives.h"
+
+class InitialiseurDichotomie
+{
+    
+public:
+    
+    // Constructeur et destructeur
+    InitialiseurDichotomie(){};
+    InitialiseurDichotomie(GammaAndDerivatives & gamma,
+                           GaussLegendre & gausslegvar);
+    ~InitialiseurDichotomie(){};
+    
+    
+    
+    // Accesseurs
+    double const& get_r0() {return r0;};
+    double const& get_u0() {return u0;};
+    double const& get_rmin() {return rmin;};
+    double const& get_rmax() {return rmax;};
+    double const& get_rht() {return rht;};
+    double const& get_rlt() {return rlt;};
+    
+    int const& get_OnOff() {return OnOff;};
+    int const& get_tht() {return tht;};
+    int const& get_tlt() {return tlt;};
+    int const& get_nrun() {return nrun;};
+    
+    
+    
+    // Fonction de classe
+    int initialising(GammaAndDerivatives& gamma);
+    int dichotomie(double w0, int ttt, std::ofstream & log);
+    int set_irho_0(std::vector<double> www);
+    void OutEtaW0(int ttt, double eta, double w0, int irho0);
+    void ReaderSetter(GammaAndDerivatives& gamma, GaussLegendre& gausslegvar, std::ofstream& log);
+    std::string trim(std::string const& str);
+    
+    
+private:
+
+    double r0, u0;
+    double rmin, rmax, rht, rlt;
+    int OnOff, tht, tlt, nrun;
+    
+};
+
+
+#endif

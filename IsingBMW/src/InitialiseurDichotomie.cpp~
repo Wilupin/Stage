@@ -1,0 +1,304 @@
+#include "InitialiseurDichotomie.h"
+
+
+// Constructeur
+InitialiseurDichotomie::InitialiseurDichotomie(GammaAndDerivatives & gamma, GaussLegendre & gausslegvar)
+{
+    
+    
+    // Erase preivous data in data directory
+    system("rm -f ../data/*");
+    std::ofstream log("log");
+    
+    
+    // Lecture des variables d'entree
+    ReaderSetter(gamma, gausslegvar, log);
+   
+    
+    // Write in file log the values read
+    log << "Programme BMW O(N = "<< gamma.get_n()<<") en d = "
+        << gausslegvar.get_d()<<" (v03.12.15)"<< std::endl;
+    log << "nppp = "<<nppp<<";\t nrho = "<<nrho<<";\t ngauleg = "<< ngausslegendre << std::endl;
+    log << "pmax = "<<p_max<<";\t rhomax = "<<rho_max<<";\t qInt = "<< qInt << std::endl;
+    log << "alpha = "<<gausslegvar.get_alpha()<<";\t u0 = "<< u0 << std::endl;
+
+    
+    // Roots of the Chebychev polynom of degree npcheb
+    Chebychev::getInstance()->ChebRoot("../data/ppp",npcheb,npchebev,p_min,p_max);
+    
+    
+    log << "Prescription Ya("
+	<< Chebychev::getInstance()->get_xcheb(gamma.get_pPrescription())<<" , "
+	<< gamma.get_rhoPrescription()*drho <<" ) = 0.0"<<std::endl;
+    
+    
+    // Initialisation des points d'integration de Gauss Legendre
+    GaussLegendre::gaulegWeightAbscissas(gausslegvar);
+    
+    
+    // Initialisation des variables de dichotomie
+    tht    = 0;
+    tlt    = 0;
+    nrun   = 0;
+    
+    
+    log.close();
+}
+
+
+
+
+
+
+
+
+
+int InitialiseurDichotomie::initialising(GammaAndDerivatives& gamma)
+{
+    // On incremente de 1 le nombre de pas de dichotomie
+  nrun++;
+
+  // On effectue la dichotomie en shifftant r0
+  r0 = 0.5*(rmax + rmin);
+
+  // On fixe/refixe la condition initiale sur les grandeurs scalaires
+  gamma.set_eta(0.0);
+  gamma.set_Zk(1.0);
+  gamma.set_kk(1.0);
+
+
+  // On fixe/refixe la condition initiale sur les fonctions
+  for(int iii = 0; iii <= nrho; iii++)
+    {
+		
+      gamma.set_WWW_rho(r0 + u0*iii*drho, iii);
+	  
+      for(int ipp = 0; ipp < nppp; ipp++)
+	{
+	  gamma.set_YYYa_p_rho(0.0, ipp, iii);
+	  gamma.set_YYYb_p_rho(0.0, ipp, iii);
+	}
+    }
+
+      
+  return 0;
+    
+}
+
+
+
+
+
+
+int InitialiseurDichotomie::dichotomie(double w0, int ttt, std::ofstream & log)
+{
+
+  // On saute une ligne dans les fichiers de plot
+  // Ceci pour ne pas ques deux run soient relies par des points
+  std::ofstream w0etaout("../data/w0eta",std::ios::app);
+  w0etaout<<std::endl;
+  w0etaout.close();
+
+  // Condition pour effectuer la dichotomie et stopper le run :
+  /* Si jamais on se retrouve avec w0 plus grand qu'une certaine valeur
+     c'est que l'on se trouve dans la phase symetrique et c'est sur.
+     Si jamais on a w0 plus petit qu'une certaine valeur c'est que l'on 
+     se trouve dans la phase brisee et c'est sur aussi. Il faut ajuster ces
+     deux valeurs rlt et rht a la main pour ne pas que les calcul soient
+     trop long, tout en faisant en sorte que l'on ne les atteignent pas dans un 
+     cas ou l'on ne saurait pas vraiment dans la bonne phase */
+
+  /* ATTENTION : Dans le cas ou ttt>tht ou ttt>tlt cela signifie que l'on a une 
+     divergence de W(0) qui est plus rapide sur le run qui ce finit ici, que sur
+     le run precedent. Ceci n'est pas normal car on est suppose se rapprocher 
+     du point critiaque et donc rester de plus en plus longtemps dans le voisinage
+     du point fixe. */
+
+    
+    if(w0<rlt)
+    {
+        if(ttt>tlt)
+        {
+            log << "Dichotomie à t = "<<ttt*dtt<<std::endl
+	       << "Phase basse temperature rmin -> r0 "<<std::endl;
+            tlt = ttt;
+            rmin = r0;
+        }
+        else
+        {
+            log << "La dichotomie n'avance plus, fin du programme!"<<std::endl;
+            log << "Paramètre dichotomie fin :\n rmin = " << rmin
+            << ",\n rmax = " << rmax<<",\n u0 = " << u0<<",\n tht = "
+            << tht<<",\n tlt = " << tlt<<std::endl;
+            log.close();
+            exit(0);
+        }
+    }
+    else
+    {
+        if(ttt>tht)
+        {
+            log<<"Dichotomie à t = "<<ttt*dtt<<std::endl<<"Phase haute temperature rmax -> r0"<<std::endl;
+            tht = ttt;
+            rmax = r0;
+        }
+        else
+        {
+            log <<"La dichotomie n'avance plus, fin du programme!"<<std::endl;
+            log <<"Paramètre dichotomie fin :\n rmin = " << rmin<<",\n rmax = "
+            << rmax<<",\n u0 = " << u0 <<",\n tht = "
+		<< tht<<",\n tlt = " << tlt<<std::endl;
+            log.close();
+            exit(0);
+        }
+    }
+
+    
+    /* Si tout c'est bien passe on retourne -1 pour reinitialiser le temps a cette valeur
+       et relancer a 0 la boucle sur le temps. */
+    return -1;
+}
+
+
+
+
+
+
+
+int InitialiseurDichotomie::set_irho_0(std::vector<double> www)
+{
+    double wi=www[0],wip1=www[1];
+    int iii = 0;
+    
+    while(!(wi<=0&&wip1>0)&&iii<nrho)
+    {
+        iii++;
+        wi=www[iii];
+        wip1=www[iii+1];
+    }
+    
+    return iii;
+}
+
+
+
+
+
+void InitialiseurDichotomie::OutEtaW0(int ttt, double eta, double w0, int irho0)
+{
+    std::ofstream w0etaout("../data/w0eta",std::ios::app);
+    w0etaout.precision(16);
+    w0etaout<<ttt*dtt<<"\t"<<eta<<"\t"<<w0<<"\t"<<irho0<<std::endl;
+    w0etaout.close();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void InitialiseurDichotomie::ReaderSetter(GammaAndDerivatives& gamma,
+					  GaussLegendre& gausslegvar,
+					  std::ofstream& log)
+{
+
+  std::ifstream fichierInput("../input/data.ini", std::ios::in);
+
+  double d, n, alpha; 
+  int tmax, ompOn, numberOfThreads;
+  
+  
+  if(fichierInput)
+    {
+      std::string ligne;
+      std::string param;
+
+      while(getline(fichierInput, ligne))
+	{
+	  
+	  size_t pos = ligne.find("=");
+	  
+	  if(pos != -1)
+	    {
+	      
+	      param = trim(ligne.substr(0,pos));
+	      
+	      if (param == "d")
+		d = std::stod(trim(ligne.substr(pos+1)));
+	      if (param == "n")
+		n = std::stod(trim(ligne.substr(pos+1)));
+	      if (param == "alpha")
+		alpha = std::stod(trim(ligne.substr(pos+1)));
+	      if (param == "u0")
+		u0 = std::stod(trim(ligne.substr(pos+1)));
+	      if (param == "rmin")
+		rmin = std::stod(trim(ligne.substr(pos+1)));
+	      if (param == "rmax")
+		rmax = std::stod(trim(ligne.substr(pos+1)));
+	      if (param == "rht")
+		rht = std::stod(trim(ligne.substr(pos+1)));
+	      if (param == "rlt")
+		rlt = std::stod(trim(ligne.substr(pos+1)));
+	      if (param == "dichoOnOff")
+		dichoOnOff = std::stoi(trim(ligne.substr(pos+1)));
+	      if (param == "tmax")
+		tmax = std::stoi(trim(ligne.substr(pos+1)));
+	      if (param == "ompOn")
+		ompOn = std::stoi(trim(ligne.substr(pos+1)));
+	      if (param == "numberOfThreads")
+		numberOfThreads = std::stoi(trim(ligne.substr(pos+1)));
+	    }
+	 	  
+	}
+    }
+
+
+  // Values of GaussLegendre attributes
+  gausslegvar.set_alpha(alpha);
+  gausslegvar.set_d(d);
+    
+    
+  // Values of gamma attributes
+  gamma.set_d(gausslegvar.get_d());
+  gamma.set_pPrescription(nppp-1);
+  gamma.set_rhoPrescription(5);
+  gamma.set_n(n);
+  gamma.set_ompOn(ompOn);
+  gamma.set_tmax(int(tmax));
+
+
+  std::cout << d << " " << n << " " << alpha << " "
+	    << u0 << " " << rmin << " " << rmax << " "
+	    << rht << " " << rlt << " " << dichoOnOff << " "
+	    << tmax << " "  << ompOn << " "<< numberOfThreads  << std::endl;
+
+
+  // Parralelisation paramaters
+  if(gamma.get_ompOn())
+    {
+      omp_set_num_threads(numberOfThreads);
+      log << "On parallélise sur " << numberOfThreads << " processeurs.\n" << std::endl;
+    }
+
+}
+
+
+
+
+
+std::string InitialiseurDichotomie::trim(std::string const& str)
+{
+  size_t first = str.find_first_not_of(' ');
+  size_t last  = str.find_last_not_of(' ');
+
+  return str.substr(first, (last-first+1));
+}
