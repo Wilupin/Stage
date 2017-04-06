@@ -11,6 +11,18 @@
 ** -----------------------------*/
 
 
+/* --------------------------------------------------------
+   Description de la classe : 
+   Cette classe est la classe centrale du code IsingBMW. 
+   Elle permet de calculer la decomposition de Chebychev, 
+   les derivees des fonctions et les integrales a l'aide 
+   de la fonction ChebychevDeriveesEtIntegrales. Ensuite,
+   une fois tout ces calculs realise elle permet de calculer
+   les equations de flots et donc de remplacer les fonctions 
+   par leur nouvel itere temporel en appelant FlowStepForward.
+   -------------------------------------------------------- */
+
+
 #include "Chebychev.h"
 #include "GaussLegendre.h"
 #include "Derivateur.h"
@@ -29,8 +41,9 @@ class GammaAndDerivatives
   // Accesseur
   double const& get_d(){return d;};
   double const& get_kk(){return kk;};
+  double const& get_tt(){return tt;};
   int const& get_ompOn(){return ompOn;};
-  int const& get_tmax() {return tmax;}; 
+  int const& get_itMax() {return itMax;}; 
   int const& get_irho0(){return irho0;};
   int const& get_nrho() {return nrho;};
   double const& get_drho() {return drho;};
@@ -38,37 +51,34 @@ class GammaAndDerivatives
   
   
   // Setteur
-  void set_d(double const& n_d)           {d = n_d;};
-  void set_kk(double const& n_k)          {kk = n_k;};
-  void set_ompOn(int const& n_o)          {ompOn = n_o;};
-  void set_tmax(int const& n_t)           {tmax = n_t;};
-  
-  // Fonctions autres;
-  void set_irho0();
-  void sortieDiversesGnuPlot(int ttt, int nrun);
+  void set_kktt(int const& n_t);
 
+  void set_V_rho(double const& val, int ir) {V_rho[ir] = val;};
+  void set_W_rho(double const& val, int ir) {W_rho[ir] = val;};
+  void set_Delta_px_py_rho(double const& val, int ipx, int ipy, int ir)
+  {Delta_px_py_rho[ipx][ipy][ir] = val;};
   
-  /* -------------------------------------------------
-     Fonctions pour le calcul dimensionne Ising d = 2 
-     ------------------------------------------------- */
+  
+  // Fonctions pour les sorties;
+  void set_irho0();
+  void SortieDiversesGnuPlot(int nrun);
+  void SortieDataRho0();
+  void SortieLogRho0();
 
   // Equations de flot
-  double flowOfDeltaDim(int ipx, int ipy, int ir);
-  double flowOfWDim(int ir);
-  double flowOfVDim(int ir);
+  double FlowOfDeltaDim(int ipx, int ipy, int ir);
+  double FlowOfWDim(int ir);
+  double FlowOfVDim(int ir);
 
-  // Calcul des coefficients de chebichev
-  void CoeffChebGamma2D();
-
-  // Pas de temps euler
-  void flowStepForward2D(std::ofstream & log);
+  // Pas de temps euler, avancee du flot
+  void FlowStepForward2D();
 
   // Integrale et derivation
-  void DeriveesEtIntegrales();
+  void ChebychevDeriveesEtIntegrales();
   void DerivationDim2D(int ir);
   void IntegralsDim2D(int ir);
-  void updatePropagatorQ(double qx, double qy, int ir);
-  void updatePropagatorPQ(double pxpqx, double pypqy, int ir);
+  void UpdatePropagatorQ(double qx, double qy, int ir);
+  void UpdatePropagatorPQ(double pxpqx, double pypqy, int ir);
   double fToIntI(double qx, double qy, int i);
   double fToIntJ(double qx, double qy, int i);
   double RegulatorDim(double qx, double qy);
@@ -79,6 +89,7 @@ class GammaAndDerivatives
   void DerivationI11Dim2D(int ir);
 
   
+  
  private:
   
   Chebychev Cheb;
@@ -86,16 +97,14 @@ class GammaAndDerivatives
   GaussLegendre GL;
 
   // Pointeur vers le gestionnaire des entrees et sorties
-  InOut *ptr = InOut::getInstance();
+  InOut *ptrInOut = InOut::getInstance();
   
   // Variables for the resolution
-  double d, kk, drho, qMax, dtt, alpha, pMax, mu;
-  int tmax, ompOn, irho0, nrho;
-
+  double kk, tt, dtt;
+  int itt, itMax, tMax, tMin;
   
-  /* -------------------------------------------------
-     Variables pour le calcul dimensionne Ising d = 2 
-     ------------------------------------------------- */
+  double d, drho, qMax, alpha, pMax, mu;
+  int ompOn, irho0, nrho;
 
   // Variables de stockage
   double uk, gammaq, ek, m2k, valDeltaQ, valDeltaPQ;

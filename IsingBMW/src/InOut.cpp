@@ -4,29 +4,39 @@
 InOut::InOut()
 {
 
-  // Two first files opened
+  // First three files opened
   fileInput.open("../input/data.ini", std::ios::in);
   log.open("../output/log");
 }
 
 
+void InOut::OpenFileRho0()
+{
+  fileRho0.open("../data/rho0", std::ios::app);
+  fileRho0.precision(16);
+}
+
+
+
 void InOut::OpenSortiesGnuplot()
 {
   fileW.open("../data/W", std::ios::app);
-  fileW1.open("../data/W", std::ios::app);
-  fileW2.open("../data/W", std::ios::app);
-  fileV.open("../data/W", std::ios::app);
+  fileW1.open("../data/W1", std::ios::app);
+  fileW2.open("../data/W2", std::ios::app);
+  fileV.open("../data/V", std::ios::app);
 
-  fileDelta.open("../data/W", std::ios::app);
-  fileDelta1.open("../data/W", std::ios::app);
-  fileDelta2.open("../data/W", std::ios::app);
+  fileDelta.open("../data/Delta", std::ios::app);
+  fileDelta1.open("../data/Delta1", std::ios::app);
+  fileDelta2.open("../data/Delta2", std::ios::app);
 
-  fileI1.open("../data/W", std::ios::app);
-  fileI2.open("../data/W", std::ios::app);
-  fileI3.open("../data/W", std::ios::app);
-  fileI11.open("../data/W", std::ios::app);
-  fileJ3.open("../data/W", std::ios::app);
+  fileI1.open("../data/I1", std::ios::app);
+  fileI2.open("../data/I2", std::ios::app);
+  fileI3.open("../data/I3", std::ios::app);
+  fileI11.open("../data/I11", std::ios::app);
+  fileJ3.open("../data/J3", std::ios::app);
 
+  fileRegulateur.open("../data/Reg", std::ios::app);
+  fileDerRegulateur.open("../data/DerReg", std::ios::app);
 
   fileW.precision(16);
   fileW1.precision(16);
@@ -42,6 +52,9 @@ void InOut::OpenSortiesGnuplot()
   fileI3.precision(16);
   fileI11.precision(16);
   fileJ3.precision(16);
+
+  fileRegulateur.precision(16);
+  fileDerRegulateur.precision(16);
   
 }
 
@@ -63,15 +76,12 @@ void InOut::CloseSortiesGnuplot()
   fileI3.close();
   fileI11.close();
   fileJ3.close();
+
+  fileRegulateur.close();
+  fileDerRegulateur.close();
   
 }
 
 
 
-void InOut::OutEtaW0(int ttt, double eta, double w0, int irho0, double dt)
-{
-    std::ofstream w0etaout("../data/w0eta",std::ios::app);
-    w0etaout.precision(16);
-    w0etaout<<ttt*dt<<"\t"<<eta<<"\t"<<w0<<"\t"<<irho0<<std::endl;
-    w0etaout.close();
-}
+

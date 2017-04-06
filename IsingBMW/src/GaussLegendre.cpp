@@ -9,7 +9,6 @@ GaussLegendre::GaussLegendre(int nd)
   d = nd;
   
   ngl   = Parametres::getInstance()->get_npGL(); 
-  alpha = Parametres::getInstance()->get_alpha();
   qMax  = Parametres::getInstance()->get_qMax(); 
 
 
@@ -62,25 +61,9 @@ GaussLegendre::GaussLegendre(int nd)
   norme = normalisationIntegrale(d);
 
 
-
-
-  // Initalisation du tableau pour la quadrature sur triangle
-  // Ceci fera gagner beacoup de temps sur les calculs d'integrales
-  
-  intTriangleY.resize(ngl);
-  intTriangleY[0] = 0; 
-
-  for(int j = 1; j <= ngl; j++)
-    for(int k = 1; k <= ngl; k++)
-      if(x[k] <= x[j])
-	intTriangleY[j]++; 
-  
-
-
-  
+ 
   std::cout << " | Initialisation GaussLegendre complete " << std::endl;
   std::cout << " | Nombre de Points : " << ngl << std::endl;
-  std::cout << " | alpha            : " << alpha << std::endl;
   std::cout << " | Dimension d      : " << d << std::endl;
   std::cout << " | Norme            : " << norme << std::endl; 
   std::cout << std::endl; 

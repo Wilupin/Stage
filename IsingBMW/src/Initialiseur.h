@@ -17,8 +17,15 @@ public:
     
   // Fonction de classe
   int Initialising(GammaAndDerivatives& gamma);
+  int Dichotomie(double w0, int ttt);
 
-    
+  // Pointeur vers les fichiers de sortie
+  InOut* ptrInOut = InOut::getInstance();
+
+ private:
+
+  double beta, d, rho, mu; 
+  int nCheb;
 };
 
 

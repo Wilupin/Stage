@@ -12,7 +12,7 @@ GammaAndDerivatives::GammaAndDerivatives() : Der(&Cheb), GL(2)
 
   d      = 2;
   
-  tmax   = Parametres::getInstance()->get_tMaxInt();
+  itMax  = Parametres::getInstance()->get_tMaxInt();
   dtt    = Parametres::getInstance()->get_dt();
   ompOn  = Parametres::getInstance()->get_ompOn();
   nrho   = Parametres::getInstance()->get_nrho();
@@ -21,7 +21,8 @@ GammaAndDerivatives::GammaAndDerivatives() : Der(&Cheb), GL(2)
   alpha  = Parametres::getInstance()->get_alpha();
   mu     = Parametres::getInstance()->get_mu();
   pMax   = Parametres::getInstance()->get_pMax();
-  
+  tMin   = Parametres::getInstance()->get_tMin();
+  tMax   = Parametres::getInstance()->get_tMax();
 
   
 
@@ -68,7 +69,30 @@ GammaAndDerivatives::GammaAndDerivatives() : Der(&Cheb), GL(2)
 
  
 
+  
+  // Ecriture de la fonction de dispersion
+  ptrInOut->OpenFileE0();
 
+  double px, py; 
+  
+  for(int ipx = 0; ipx < Cheb.get_n(); ipx++)
+    {
+      px = Cheb.get_xcheb(ipx);
+      
+      for(int ipy = 0; ipy < Cheb.get_n(); ipy++)
+	{
+	  py = Cheb.get_xcheb(ipy);
+
+	  ptrInOut->get_fileE0() << px << "\t" << py << "\t" << e0(px, py) << std::endl;
+	}
+
+    }
+
+  ptrInOut->CloseFileE0();
+
+
+
+  
 
   // Affichage de la sortie de l'initialisation
 
@@ -76,7 +100,10 @@ GammaAndDerivatives::GammaAndDerivatives() : Der(&Cheb), GL(2)
   std::cout << " | Dimension             : " << d << std::endl;
   std::cout << " | Alpha                 : " << alpha << std::endl;
   std::cout << " | Mu                    : " << mu << std::endl; 
-  std::cout << " | Temps maximal (int)   : " << tmax << std::endl;
+  std::cout << " | Temps maximal (int)   : " << itMax << std::endl;
+  std::cout << " | Temps maximal (vrai)  : " << tMax << std::endl;
+  std::cout << " | Temps minimal (vrai)  : " << tMin << std::endl;
+  std::cout << " | Pas de temps          : " << dtt << std::endl; 
   std::cout << " | Np en rho             : " << nrho << std::endl;
   std::cout << " | Pas en rho            : " << drho << std::endl;  
   std::cout << " | Parallelisation 1/0   : " << ompOn << std::endl;
@@ -86,86 +113,44 @@ GammaAndDerivatives::GammaAndDerivatives() : Der(&Cheb), GL(2)
 
 
 
-/* -------------------------------------------------
-   Avancee du flot pour le cas Ising 2D
-   ------------------------------------------------- */
 
-// Function called in main to make one setp forward in time
-void GammaAndDerivatives::flowStepForward2D(std::ofstream & log)
+
+
+/* -----------------------------------------------------
+   Mise a jour du temps et de k ou l'on calcule
+   ----------------------------------------------------- */
+
+void GammaAndDerivatives::set_kktt(int const& n_itt)
 {
-    
-#pragma omp parallel for if(ompOn)
+  itt = n_itt;
+  tt  = itt*dtt - tMin;
+  kk  = exp(tt*dtt);
+}
+
+/* -------------------------------------------------
+   ------------------------------------------------- *
+
+
+
+
+
+/* -----------------------------------------------------
+ Calculation of gamma derivatives and integrals 
+ ------------------------------------------------------- */
+
+void GammaAndDerivatives::ChebychevDeriveesEtIntegrales()
+{
+  #pragma omp parallel for if(ompOn)
   for(int ir = 0; ir <= nrho ; ir++)
     {
-      W_rho[ir] += dtt*flowOfWDim(ir);
-      V_rho[ir] += dtt*flowOfVDim(ir);
-	
-      for(int ipx = 0; ipx < Cheb.get_n(); ipx++)
-	for(int ipy = 0; ipy < ipx + 1; ipy++)
-	  Delta_px_py_rho[ipx][ipy][ir] += dtt*flowOfDeltaDim(ipx, ipy, ir);
+      
+      Cheb.CoeffCheb2D(Delta_px_py_rho,
+		       ChebDelta_px_py_rho, ir); // Recuperation des coeffs de Chebychev
+      DerivationDim2D(ir);                       // Calcul des derivees
+      IntegralsDim2D(ir);                        // Calcul des integrales
+      DerivationI11Dim2D(ir);                    // Calcul de la derivee d'une integrale
     }
-
 }
-
-
-/* -------------------------------------------------
-   ------------------------------------------------- */
-
-
-
-
-
-
-
-/* -------------------------------------------------
-   Equations de flow dimensionnees pour Ising d = 2
-   ------------------------------------------------- */
-
-double GammaAndDerivatives::flowOfDeltaDim(int ipx, int ipy, int ir)
-{
-
-  uk = 2*ir*W2_rho[ir]/drho + 3*W1_rho[ir]/drho;
-    
-  return 2*ir*drho*J3_px_py_rho[ipx][ipy][ir] *
-    pow( uk + Delta1_px_py_rho[ipx][ipy][ir]/drho, 2) - 2*ir*drho*I3_rho[ir]*pow(uk,2) -
-    0.5*I2_rho[ir]*(Delta1_px_py_rho[ipx][ipy][ir] + 2*ir* Delta2_px_py_rho[ipx][ipy][ir])/drho;
-}
-
-
-
-double GammaAndDerivatives::flowOfWDim(int ir)
-{
-  return 0.5*I11_rho[ir]; 
-}
-
-
-double GammaAndDerivatives::flowOfVDim(int ir)
-{
-  return 0.5*I1_rho[ir];
-}
-
-
-/* -------------------------------------------------
-   ------------------------------------------------- */
-
-
-
-
-/* -------------------------------------------------
-   Calcul des coefficients de chebychev fonctions 2D
-   ------------------------------------------------- */
-
-void GammaAndDerivatives::CoeffChebGamma2D()
-{
-  // On actuallise les coefficients de Chebychev
-#pragma omp parallel for if(ompOn)
-  for (int ir = 0; ir<=nrho; ir++)
-      Cheb.CoeffCheb2D(Delta_px_py_rho, ChebDelta_px_py_rho, ir); 
-}
-
-/* -------------------------------------------------
-   ------------------------------------------------- */
-
 
 
 
@@ -226,20 +211,20 @@ void GammaAndDerivatives::IntegralsDim2D(int ir)
 
 
   // Evaluation de la masse
-  m2k = W_rho[ir] + 2*ir*W1_rho[ir]; 
+  m2k = W_rho[ir] + 2*ir*W1_rho[ir];
   
   
   for(int j = 1; j<=GL.get_ngl(); j++)
     {
       qx = 0.5*qMax*(GL.get_x(j)+1);
-
+      
       // On fait l'integrale sur le triangle, on se sert de la symetrie
-      for (int k = 1; k <= GL.get_intTriangleY(j); k++)
+      for (int k = 1; k <= j; k++)
 	{
 	  qy = 0.5*qMax*(GL.get_x(k)+1);
 
 	  // On met a jour le propagateur 
-	  updatePropagatorQ(qx, qy, ir);
+	  UpdatePropagatorQ(qx, qy, ir);
 
 	  // On donne les nouveaux poids
 	  weight = GL.get_w(j)*GL.get_w(k); 
@@ -263,23 +248,32 @@ void GammaAndDerivatives::IntegralsDim2D(int ir)
 	    {
 	      px = Cheb.get_xcheb(ipx);
 	      
-	      for(int ipy = 0; ipy < ipx+1; ipx++)
+	      // std::cout << j << " " << k << " " << ipx << " Bonjour" << std::endl;
+	      
+	      for(int ipy = 0; ipy < ipx+1; ipy++)
 		{
 		  py = Cheb.get_xcheb(ipy);
 
-		  Recenter(px, py, qx, qy, pxpqx, pypqy);
-		  updatePropagatorPQ(pxpqx, pypqy, ir);
+		  // std::cout << ipy << " Bonjour" << std::endl; 
 
+		  Recenter(px, py, qx, qy, pxpqx, pypqy);
+		  UpdatePropagatorPQ(pxpqx, pypqy, ir);
+
+		  // std::cout << ipy << " Bonjour" << std::endl;
+		  
 		  if(qy < qx)
 		    J3_px_py_rho[ipx][ipy][ir] += 2*weight*fToIntJ(qx, qy, 3) * GL.get_norme();
 		  if(qy == qx)
 		    J3_px_py_rho[ipx][ipy][ir] +=   weight*fToIntJ(qx, qy, 3) * GL.get_norme();
+
+		  // std::cout << ipy << " Bonjour" << std::endl; 
 		}
 	    }
 	}
       
     }
 
+  // std::cout << "Bonjour" << std::endl;
   I1_rho[ir] = sumI1 * GL.get_norme();
   I2_rho[ir] = sumI2 * GL.get_norme();
   I3_rho[ir] = sumI3 * GL.get_norme();
@@ -288,10 +282,22 @@ void GammaAndDerivatives::IntegralsDim2D(int ir)
 
 
 
-void GammaAndDerivatives::updatePropagatorQ(double qx, double qy, int ir)
+void GammaAndDerivatives::UpdatePropagatorQ(double qx, double qy, int ir)
 {
   // Recuperation de la valeur de Delta au bon point
   valDeltaQ = Cheb.chebev2D(ChebDelta_px_py_rho, qx, qy, ir);
+
+  
+  if(valDeltaQ != valDeltaQ)
+    {
+      if(omp_get_thread_num() == 0)
+	{
+	  std::cout << "ERROR, au temps : " << itt << " pour " << valDeltaQ <<  std::endl;
+	  SortieDiversesGnuPlot(1);
+	  exit(0);
+	}
+    }      
+
   
   // Ecriture du nouveau prpagateur
   propagatorQ = pow(  RegulatorDim(qx, qy) + e0(qx,qy) + valDeltaQ + m2k ,-1);
@@ -299,7 +305,7 @@ void GammaAndDerivatives::updatePropagatorQ(double qx, double qy, int ir)
 
 
 
-void GammaAndDerivatives::updatePropagatorPQ(double pxpqx, double pypqy, int ir)
+void GammaAndDerivatives::UpdatePropagatorPQ(double pxpqx, double pypqy, int ir)
 {
   // Recuperation de la valeur de Delta au bon point
   valDeltaPQ = Cheb.chebev2D(ChebDelta_px_py_rho, pxpqx, pypqy, ir); 
@@ -346,12 +352,12 @@ double GammaAndDerivatives::e0(double qx, double qy)
 {
   gammaq = (cos(qx) + cos(qy))/d;
 
-  return (2*d*(d+mu))*(1-gammaq)/(d*gammaq +mu);
+  return (2*d*(d+mu))*(1-gammaq)/(d*gammaq + mu);
 }
 
 
 // Fonction qui utilise la periodicité pour calculer les integrales
-// sur p+q la ou p+q sort du carre d'integration
+// sur p+q la ou p+q sort du carre/triangle d'integration
 void GammaAndDerivatives::Recenter(double px, double py, double qx, double qy,
 				   double & npxpqx, double & npypqy)
 {
@@ -375,20 +381,86 @@ void GammaAndDerivatives::Recenter(double px, double py, double qx, double qy,
 
 
 
-// Calculation of gamma derivatives and integrals using previous functions
-void GammaAndDerivatives::DeriveesEtIntegrales()
+/* -------------------------------------------------
+   ------------------------------------------------- */
+
+
+
+
+
+
+
+
+
+
+
+/* -------------------------------------------------
+   Avancee du flot pour le cas Ising 2D
+   Equations de flot
+   ------------------------------------------------- */
+
+// Function called in main to make one setp forward in time
+void GammaAndDerivatives::FlowStepForward2D()
 {
-  #pragma omp parallel for if(ompOn)
-  for(int iii = 0; iii <= nrho ; iii++)
+    
+#pragma omp parallel for if(ompOn)
+  for(int ir = 0; ir <= nrho ; ir++)
     {
-      DerivationDim2D(iii); // Calcul des derivees
-      IntegralsDim2D(iii);  // Calcul des integrales
-      DerivationI11Dim2D(iii);   // Calcul de la derivee d'une integrale
+      W_rho[ir] += dtt*FlowOfWDim(ir);
+      V_rho[ir] += dtt*FlowOfVDim(ir);
+	
+      for(int ipx = 0; ipx < Cheb.get_n(); ipx++)
+	for(int ipy = 0; ipy < ipx + 1; ipy++)
+	  Delta_px_py_rho[ipx][ipy][ir] += dtt*FlowOfDeltaDim(ipx, ipy, ir);
     }
+
 }
 
 
 
+double GammaAndDerivatives::FlowOfDeltaDim(int ipx, int ipy, int ir)
+{
+
+  uk = 2*ir*W2_rho[ir]/drho + 3*W1_rho[ir]/drho;
+    
+  return 2*ir*drho*J3_px_py_rho[ipx][ipy][ir] *
+    pow( uk + Delta1_px_py_rho[ipx][ipy][ir]/drho, 2) - 2*ir*drho*I3_rho[ir]*pow(uk,2) -
+    0.5*I2_rho[ir]*(Delta1_px_py_rho[ipx][ipy][ir] + 2*ir* Delta2_px_py_rho[ipx][ipy][ir])/drho;
+}
+
+
+
+double GammaAndDerivatives::FlowOfWDim(int ir)
+{
+  return 0.5*I11_rho[ir]; 
+}
+
+
+double GammaAndDerivatives::FlowOfVDim(int ir)
+{
+  return 0.5*I1_rho[ir];
+}
+
+
+/* -------------------------------------------------
+   ------------------------------------------------- */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ------------------------------------------------
+   Fonctions s'occupant des sorties 
+   ------------------------------------------------ */
 
 
 void GammaAndDerivatives::set_irho0()
@@ -410,23 +482,56 @@ void GammaAndDerivatives::set_irho0()
 
 
 
-void GammaAndDerivatives::sortieDiversesGnuPlot(int ttt, int nrun)
+
+void GammaAndDerivatives::SortieDataRho0()
+{
+  // Mise a jour de irho0
+  set_irho0();
+
+  // Ecriture de irho0
+  ptrInOut->OpenFileRho0();
+  ptrInOut->get_fileRho0() << tt*dtt << "\t" << irho0*drho  << std::endl; 
+  ptrInOut->CloseFileRho0();
+}
+
+
+
+void GammaAndDerivatives::SortieLogRho0()
+{
+  // Mise a jour de irho0
+  set_irho0();
+
+  // Ecriture de irho0
+  ptrInOut->get_log() << tt*dtt << "\t" << irho0*drho  << std::endl; 
+}
+
+
+
+void GammaAndDerivatives::SortieDiversesGnuPlot(int nrun)
 {
 
   // Ouverture des fichiers de sortie
-  ptr->OpenSortiesGnuplot();
+  ptrInOut->OpenSortiesGnuplot();
 
   for(int ir = 0; ir <= nrho; ir++)
     {
-      ptr->get_fileW() << nrun << "\t" << ttt << "\t" << ir*drho << "\t" << W_rho[ir] << std::endl;
-      ptr->get_fileW1() << nrun << "\t" << ttt << "\t" << ir*drho << "\t" << W1_rho[ir] << std::endl;
-      ptr->get_fileW2() << nrun << "\t" << ttt << "\t" << ir*drho << "\t" << W2_rho[ir] << std::endl;
-      ptr->get_fileV() << nrun << "\t" << ttt << "\t" << ir*drho << "\t" << V_rho[ir] << std::endl;
+      ptrInOut->get_fileW()  << nrun << "\t" << itt << "\t"
+			     << ir*drho << "\t" << W_rho[ir] << std::endl;
+      ptrInOut->get_fileW1() << nrun << "\t" << itt << "\t"
+			     << ir*drho << "\t" << W1_rho[ir] << std::endl;
+      ptrInOut->get_fileW2() << nrun << "\t" << itt << "\t"
+			     << ir*drho << "\t" << W2_rho[ir] << std::endl;
+      ptrInOut->get_fileV()  << nrun << "\t" << itt << "\t" << ir*drho << "\t"
+			     << V_rho[ir] << std::endl;
 
-      ptr->get_fileI1() << nrun << "\t" << ttt << "\t" << ir*drho << "\t" << I1_rho[ir] << std::endl;
-      ptr->get_fileI2() << nrun << "\t" << ttt << "\t" << ir*drho << "\t" << I2_rho[ir] << std::endl;
-      ptr->get_fileI3() << nrun << "\t" << ttt << "\t" << ir*drho << "\t" << I3_rho[ir] << std::endl;
-      ptr->get_fileI11() << nrun << "\t" << ttt << "\t" << ir*drho << "\t" << I1_rho[ir] << std::endl;
+      ptrInOut->get_fileI1()  << nrun << "\t" << itt << "\t"
+			      << ir*drho << "\t" << I1_rho[ir] << std::endl;
+      ptrInOut->get_fileI2()  << nrun << "\t" << itt << "\t"
+			      << ir*drho << "\t" << I2_rho[ir] << std::endl;
+      ptrInOut->get_fileI3()  << nrun << "\t" << itt << "\t"
+			      << ir*drho << "\t" << I3_rho[ir] << std::endl;
+      ptrInOut->get_fileI11() << nrun << "\t" << itt << "\t"
+			      << ir*drho << "\t" << I11_rho[ir] << std::endl;
 
       for(int ipx = 0; ipx < Cheb.get_n(); ipx++)
 	{
@@ -435,62 +540,63 @@ void GammaAndDerivatives::sortieDiversesGnuPlot(int ttt, int nrun)
 	    {
 	      if(ipy <= ipx)
 		{
-		  ptr->get_fileDelta() << nrun << "\t" << ttt << ir*drho << "\t"
+		  ptrInOut->get_fileDelta() << nrun << "\t" << itt << "\t" << ir*drho << "\t"
 				       << Cheb.get_xcheb(ipx) << "\t" << Cheb.get_xcheb(ipy)
 				       << "\t" << Delta1_px_py_rho[ipx][ipy][ir] << std::endl;
-		  ptr->get_fileDelta1() << nrun << "\t" << ttt << ir*drho << "\t"
+		  ptrInOut->get_fileDelta1() << nrun << "\t" << itt << "\t"<<  ir*drho << "\t"
 				       << Cheb.get_xcheb(ipx) << "\t" << Cheb.get_xcheb(ipy)
 				       << "\t" << Delta1_px_py_rho[ipx][ipy][ir] << std::endl;
-		  ptr->get_fileDelta2() << nrun << "\t" << ttt << ir*drho << "\t"
+		  ptrInOut->get_fileDelta2() << nrun << "\t" << itt << "\t" << ir*drho << "\t"
 				       << Cheb.get_xcheb(ipx) << "\t" << Cheb.get_xcheb(ipy)
 				       << "\t" << Delta2_px_py_rho[ipx][ipy][ir] << std::endl;
-		  ptr->get_fileJ3() << nrun << "\t" << ttt << ir*drho << "\t"
+		  ptrInOut->get_fileJ3() << nrun << "\t" << itt << "\t" <<  ir*drho << "\t"
 				    << Cheb.get_xcheb(ipx) << "\t" << Cheb.get_xcheb(ipy)
 				    << "\t" << J3_px_py_rho[ipx][ipy][ir] << std::endl;
 		}
 	      else
 		{
-		  ptr->get_fileDelta() << nrun << "\t" << ttt << ir*drho << "\t"
+		  ptrInOut->get_fileDelta() << nrun << "\t" << itt << "\t" << ir*drho << "\t"
 				       << Cheb.get_xcheb(ipx) << "\t" << Cheb.get_xcheb(ipy)
 				       << "\t" << Delta1_px_py_rho[ipy][ipx][ir] << std::endl;
-		  ptr->get_fileDelta1() << nrun << "\t" << ttt << ir*drho << "\t"
+		  ptrInOut->get_fileDelta1() << nrun << "\t" << itt << "\t" << ir*drho << "\t"
 				       << Cheb.get_xcheb(ipx) << "\t" << Cheb.get_xcheb(ipy)
 				       << "\t" << Delta1_px_py_rho[ipy][ipx][ir] << std::endl;
-		  ptr->get_fileDelta2() << nrun << "\t" << ttt << ir*drho << "\t"
+		  ptrInOut->get_fileDelta2() << nrun << "\t" << itt << "\t" << ir*drho << "\t"
 				       << Cheb.get_xcheb(ipx) << "\t" << Cheb.get_xcheb(ipy)
 				       << "\t" << Delta2_px_py_rho[ipy][ipx][ir] << std::endl;
-		  ptr->get_fileJ3() << nrun << "\t" << ttt << ir*drho << "\t"
+		  ptrInOut->get_fileJ3() << nrun << "\t" << itt << "\t" << ir*drho << "\t"
 				    << Cheb.get_xcheb(ipx) << "\t" << Cheb.get_xcheb(ipy)
 				    << "\t" << J3_px_py_rho[ipy][ipx][ir] << std::endl;
 		}
 	    
 	    }
 
-	  ptr->get_fileDelta() << std::endl;
-	  ptr->get_fileDelta1() << std::endl;
-	  ptr->get_fileDelta2() << std::endl;
-	  ptr->get_fileJ3() << std::endl;
+	  ptrInOut->get_fileDelta() << std::endl;
+	  ptrInOut->get_fileDelta1() << std::endl;
+	  ptrInOut->get_fileDelta2() << std::endl;
+	  ptrInOut->get_fileJ3() << std::endl;
 	  
 	}
 
-      ptr->get_fileW() << std::endl;
-      ptr->get_fileW1() << std::endl;
-      ptr->get_fileW2() << std::endl;
-      ptr->get_fileV() << std::endl;
-
-      ptr->get_fileI1() << std::endl; 
-      ptr->get_fileI2() << std::endl;
-      ptr->get_fileI3() << std::endl;
-      ptr->get_fileI11() << std::endl;
-
-      ptr->get_fileDelta() << std::endl;
-      ptr->get_fileDelta1() << std::endl;
-      ptr->get_fileDelta2() << std::endl;
-      ptr->get_fileJ3() << std::endl;
-      
     }
+  
 
+  ptrInOut->get_fileW() << std::endl;
+  ptrInOut->get_fileW1() << std::endl;
+  ptrInOut->get_fileW2() << std::endl;
+  ptrInOut->get_fileV() << std::endl;
 
-  ptr->CloseSortiesGnuplot(); 
+  ptrInOut->get_fileI1() << std::endl; 
+  ptrInOut->get_fileI2() << std::endl;
+  ptrInOut->get_fileI3() << std::endl;
+  ptrInOut->get_fileI11() << std::endl;
+
+  ptrInOut->get_fileDelta() << std::endl;
+  ptrInOut->get_fileDelta1() << std::endl;
+  ptrInOut->get_fileDelta2() << std::endl;
+  ptrInOut->get_fileJ3() << std::endl;
+     
+
+  ptrInOut->CloseSortiesGnuplot(); 
 
 }

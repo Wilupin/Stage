@@ -40,8 +40,9 @@ class InOut
   
   // Fonctions de classe
   std::ifstream & get_fileInput() {return fileInput;};
-
+  
   std::ofstream & get_log() {return log;};
+  std::ofstream & get_fileRho0() {return fileRho0;};
 
   // Sorties gnuplot
   std::ofstream & get_fileW() {return fileW;};
@@ -57,12 +58,22 @@ class InOut
   std::ofstream & get_fileI11() {return fileI11;};
   std::ofstream & get_fileJ3() {return fileJ3;};
 
+  std::ofstream & get_fileE0() {return fileE0;};
+  std::ofstream & get_fileRegulateur() {return fileRegulateur;};
+  std::ofstream & get_fileDerRegulateur() {return fileDerRegulateur;};
+
   void OpenSortiesGnuplot(); 
   void CloseSortiesGnuplot();
-  void OutEtaW0(int ttt, double eta, double w0, int irho0, double dt);
-
+ 
   void CloseFileInput() {fileInput.close();};
   void CloseLog() {log.close();};
+
+  void OpenFileE0() {fileE0.open("../data/E0"); fileE0.precision(16);};
+  void CloseFileE0() {fileE0.close();};
+
+  void OpenFileRho0();
+  void CloseFileRho0() {fileRho0.close();};
+
 
   
  private:
@@ -73,6 +84,12 @@ class InOut
 
   std::ifstream  fileInput;
   std::ofstream  log;
+  std::ofstream  fileRho0;
+
+  std::ofstream fileE0;
+  std::ofstream fileRegulateur;
+  std::ofstream fileDerRegulateur;
+
   
   // Sorties Gnuplot
   std::ofstream fileW;

@@ -28,6 +28,10 @@ Parametres::Parametres()
 	      if (param == "mu")
 		mu = std::stod(trim(ligne.substr(pos+1)));
 
+	      // Parametre temperature
+	      if (param == "beta")
+		beta = std::stod(trim(ligne.substr(pos+1)));
+
 	      // parmetres sur le temps
 	      if (param == "tMax")
 		tMax = std::stod(trim(ligne.substr(pos+1)));
@@ -56,14 +60,21 @@ Parametres::Parametres()
 	      if (param ==  "npGL")
 		npGL = std::stoi(trim(ligne.substr(pos+1)));
 
-	      // Parametre pour Chebychev
+	      // Parametres pour Chebychev
 	      if (param == "npCheb")
 		npCheb = std::stoi(trim(ligne.substr(pos+1)));
 	      if (param == "pMax")
 		pMax = std::stod(trim(ligne.substr(pos+1)));
 	      if (param == "pMin")
 		pMin = std::stod(trim(ligne.substr(pos+1)));
-	      
+
+	      // Parametres d'affichage
+	      if (param == "itSaveInLog")
+		itSaveInLog = std::stoi(trim(ligne.substr(pos+1)));
+	      if (param == "itSaveInData")
+		itSaveInData = std::stoi(trim(ligne.substr(pos+1)));
+	      if (param == "itSaveEvthgInData")
+		itSaveEvthgInData = std::stoi(trim(ligne.substr(pos+1)));
 	    }
 	 	  
 	}
@@ -72,8 +83,7 @@ Parametres::Parametres()
   
 
   // Calculs des coeffcients restants
-  tMaxInt   = int(-(tMax-tMin)/dt);
-  
+  tMaxInt   = int(-(tMax-tMin)/dt);  
   npChebev  = int(3*npCheb/4);
   nrho      = int((rhoMax-rhoMin)/drho);
 
