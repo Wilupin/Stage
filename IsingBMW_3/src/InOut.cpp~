@@ -1,0 +1,11 @@
+#include "InOut.h"
+
+
+
+void InOut::OutEtaW0(int ttt, double eta, double w0, int irho0, double dt)
+{
+    std::ofstream w0etaout("../data/w0eta",std::ios::app);
+    w0etaout.precision(16);
+    w0etaout<<ttt*dt<<"\t"<<eta<<"\t"<<w0<<"\t"<<irho0<<std::endl;
+    w0etaout.close();
+}
