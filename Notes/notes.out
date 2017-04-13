@@ -11,15 +11,23 @@
 \BOOKMARK [2][-]{subsection.2.1}{L'id\351e g\351n\351rale}{section.2}% 11
 \BOOKMARK [2][-]{subsection.2.2}{Les \351quations de flot}{section.2}% 12
 \BOOKMARK [1][-]{section.3}{L'approximation BMW}{}% 13
-\BOOKMARK [1][-]{appendix.A}{Rappels de calculs}{}% 14
-\BOOKMARK [2][-]{subsection.A.1}{Derivation fonctionnelle}{appendix.A}% 15
-\BOOKMARK [2][-]{subsection.A.2}{Transform\351es de Fourier}{appendix.A}% 16
-\BOOKMARK [2][-]{subsection.A.3}{TF et d\351riv\351es fonctionnelles}{appendix.A}% 17
-\BOOKMARK [1][-]{appendix.B}{Op\351rateur \340 noyaux}{}% 18
-\BOOKMARK [2][-]{subsection.B.1}{Definition}{appendix.B}% 19
-\BOOKMARK [2][-]{subsection.B.2}{TF d'un op\351rateur \340 noyaux}{appendix.B}% 20
-\BOOKMARK [2][-]{subsection.B.3}{Produit de Volterra}{appendix.B}% 21
-\BOOKMARK [2][-]{subsection.B.4}{Trace d'un op\351rateur \340 noyaux}{appendix.B}% 22
-\BOOKMARK [2][-]{subsection.B.5}{D\351rivation de l'inverse d'une matrice}{appendix.B}% 23
-\BOOKMARK [1][-]{appendix.C}{Formules en vrac}{}% 24
-\BOOKMARK [1][-]{appendix.D}{Methode formelle de recherche des exposants critiques}{}% 25
+\BOOKMARK [1][-]{section.4}{Mod\350le d'Ising 2D par BMW}{}% 14
+\BOOKMARK [2][-]{subsection.4.1}{Theorie des champs dans un r\351seau}{section.4}% 15
+\BOOKMARK [2][-]{subsection.4.2}{Les equations BMW dimensionn\351es}{section.4}% 16
+\BOOKMARK [1][-]{section.5}{Sch\351ma num\351rique}{}% 17
+\BOOKMARK [2][-]{subsection.5.1}{Int\351gration}{section.5}% 18
+\BOOKMARK [3][-]{subsubsection.5.1.1}{Integration d'une fonction sym\351trique}{subsection.5.1}% 19
+\BOOKMARK [3][-]{subsubsection.5.1.2}{Integration d'une fonction presque sym\351trique et 2 p\351riodique}{subsection.5.1}% 20
+\BOOKMARK [2][-]{subsection.5.2}{Interpolation}{section.5}% 21
+\BOOKMARK [1][-]{appendix.A}{Rappels de calculs}{}% 22
+\BOOKMARK [2][-]{subsection.A.1}{Derivation fonctionnelle}{appendix.A}% 23
+\BOOKMARK [2][-]{subsection.A.2}{Transform\351es de Fourier}{appendix.A}% 24
+\BOOKMARK [2][-]{subsection.A.3}{TF et d\351riv\351es fonctionnelles}{appendix.A}% 25
+\BOOKMARK [1][-]{appendix.B}{Op\351rateur \340 noyaux}{}% 26
+\BOOKMARK [2][-]{subsection.B.1}{Definition}{appendix.B}% 27
+\BOOKMARK [2][-]{subsection.B.2}{TF d'un op\351rateur \340 noyaux}{appendix.B}% 28
+\BOOKMARK [2][-]{subsection.B.3}{Produit de Volterra}{appendix.B}% 29
+\BOOKMARK [2][-]{subsection.B.4}{Trace d'un op\351rateur \340 noyaux}{appendix.B}% 30
+\BOOKMARK [2][-]{subsection.B.5}{D\351rivation de l'inverse d'une matrice}{appendix.B}% 31
+\BOOKMARK [1][-]{appendix.C}{Formules en vrac}{}% 32
+\BOOKMARK [1][-]{appendix.D}{Methode formelle de recherche des exposants critiques}{}% 33

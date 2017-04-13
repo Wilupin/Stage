@@ -225,7 +225,231 @@ Une première grande classe d'approximation est appellé l'expension dérivative
 
 La seconde approximation possible est celle développée par Blaizot-M-W (BMW) et qui permet de ne pas forcément se placerà faible impulsions (et récuperer ainsi plus d'informations physique). 
 
+\newpage
 
+\section{Modèle d'Ising 2D par BMW}
+
+\subsection{Theorie des champs dans un réseau}
+
+On considère le modèle d'Ising classique sur un réseau hypercubique de dimension $d$. La pas $a$ du réseau est exprimé en unité de longueur, on prend $a=1$. On note $\{\ev_\nu\}_{\nu\in\bbrac{1,d}}$ la base cartésienne de ce réseau. Le hamiltonien du système est alors donné par
+\begin{equation}
+H = -J\beta \sum_{\left<\rv, \rv'\right>}S_\rv S_{\rv'}
+\end{equation}
+Où $S_\rv$ est la valeur du spin à la position $\rv$, comprise dans $\{-1,1\}$. La notation $\left<\rv, \rv'\right>$ signifie que le terme $S_\rv S_{\rv'}$ contribue à la somme si et seulement si ce sont deux spins plus proches voisins du réseau (i.e s'il existe $\nu \in \bbrac{1,d}$ tel que $\rv' = \rv \pm \ev_\nu$). Pour des raisons pratiques on définit maintenant un hamiltonien légerement modifié
+
+\begin{align}
+  H_\mu &= -J\beta \sum_{\left<\rv, \rv'\right>}S_\rv S_{\rv'} - \mu \beta N_S \\
+  H_\mu  &= -J\beta \sum_{\left<\rv, \rv'\right>}S_\rv S_{\rv'} - \mu \beta \sum_\rv S_\rv^2 
+\end{align}
+
+Où $N_S$ est le nombre total de spins. Physiquement cela ne change rien car cela ne fait que décaller l'origine des energies. En revanche cela a un avantage mathématique. En effet, on pose $A_{\rv, \rv'}^{(\mu)}$ la matrice définie implicitement dans $\mathscr{M}_{N_S}(\R)$ par
+\begin{equation}
+  H_\mu  = -\frac{1}{2} \sum_{\rv, \rv'} S_\rv A_{\rv, \rv'}^{(\mu)}S_{\rv'}
+\end{equation}
+
+Il est alors possible de choisir $\mu$ suffisament grand pour que $A_{\rv, \rv'}^{(\mu)}$ soit à diagonale strictement dominante et donc inversible. Par construction il suffit de prendre $\mu > dJ$. On peut alors réaliser une transformée de Hubbard-Stratanovitch. \\
+
+Pour cela commençons par écrire la fonction de partition du modèle
+\begin{equation}
+  \Zc = \sum_{\{S_\rv\}} e^{-H_{\mu}} =\sum_{\{S_\rv\}}  \exp\(\frac{1}{2} \sum_{\rv, \rv'} S_\rv A_{\rv, \rv'}^{(\mu)}S_{\rv'}\)
+\end{equation}
+
+Par integration gaussienne \textit{inverse} il vient, 
+
+\begin{equation}
+\begin{split}
+  \Zc & \propto \sum_{\{S_\rv\}} \int_\R \prod_{\rv} \, \dd \varphi_\rv \, e^{ -\frac{1}{2} \sum\limits_{\rv, \rv'} \varphi_\rv {(A_{\rv, \rv'}^{(\mu)})}^{-1} \varphi_{\rv'} +\sum\limits_\rv  \varphi_\rv S_\rv  } \\
+  \Zc & \propto \int_\R \prod_{\rv} \, \dd \varphi_\rv \, e^{ -\frac{1}{2} \sum\limits_{\rv, \rv'} \varphi_\rv {(A_{\rv, \rv'}^{(\mu)})}^{-1} \varphi_{\rv'} + \sum\limits_\rv \ln\(\cosh(\varphi_\rv)\) } \\
+\end{split}
+\end{equation}
+
+Cependant nous ne pouvons pas exprimer facilement ${(A_{\rv, \rv'}^{(\mu)})}^{-1}$ et pour cela il est pratique de réaliser une transformée de fourier semi-discrète en posant
+\begin{equation}
+  \hat{\varphi}(\qv) = \sum_\rv \varphi_\rv e^{-i\qv\rv} \quad \text{et} \quad \varphi_\rv = \int_\qv \hat{\varphi}(\qv)  e^{i\qv\rv}
+\end{equation}
+
+Il vient alors
+\begin{equation}
+\begin{split}
+  H_\mu = -J\beta & \sum_{\left<\rv, \rv'\right>} \iint_{\qv,\qv'} \hat{\varphi}(\qv) \hat{\varphi}(\qv')  e^{i(\qv\rv+\qv'\rv')} \\
+   -\mu\beta & \sum_\rv \iint_{\qv,\qv'} \hat{\varphi}(\qv) \hat{\varphi}(\qv')  e^{i(\qv+\qv')\rv}
+\end{split}
+\end{equation}
+
+Ainsi, en prenant la limite $N_S \rightarrow + \infty$ et en raisonnant au sens des distributions,
+\begin{equation}
+ \lim_{N_S \rightarrow + \infty} H_\mu = -\beta \int_\qv \hat{\varphi}(\qv)  \left\{ \sum\limits_{\nu=1}^{d}  Je^{\pm i\, \qv \, \ev_\nu} + \mu \right\}\hat{\varphi}(-\qv)
+\end{equation}
+Dans la suite nous ferons l'hypothese, comme souvent en physique, que $N_S$ est suffisament grand pour que l'on écrive, par abus de notation, $H_\mu = \lim\limits_{N_S \rightarrow + \infty} H_\mu$. \\
+Nous obtenons alors
+\begin{equation}
+  H_\mu = -\beta \int_\qv \hat{\varphi}(\qv)  \left\{ J \sum\limits_{\nu=1}^{d} \cos(q_\nu) + \mu \right\}\hat{\varphi}(-\qv)
+\end{equation}
+Et on en déduit que la transformée de Fourier de $A_{\rv, \rv'}^{(\mu)}$ qui est un opérateur de ... vérifie,
+\begin{align}
+  \hat{A}(\qv, \qv') = 
+  \begin{cases}
+    2J\beta \sum\limits_{\nu=1}^{d} \cos(q_\nu) + 2\beta\mu \quad & \text{si } \qv' = - \qv\\
+    0 \quad & \text{si } \qv' \neq - \qv
+  \end{cases}
+\end{align}
+
+Autrement dit, $\hat{A}$ est un operateur diagonal et bien inversible si $\mu > Jd$. Notons,
+\begin{align}
+\gamma(\qv ) & = \frac{1}{d} \sum\limits_{\nu=1}^{d} \cos(q_\nu) \\
+ \lambda_\mu(\qv) & = 2\beta\(J d \gamma(\qv) + \mu\)
+\end{align}
+En écrivant alors la conservation du produit scalaire de $\mathscr{l}^2$ dans $L^2(\R)$ opérée par la transformation de Fourier semi-discrète nous pouvons écrire : ...
+
+\begin{equation}
+  \Zc  \propto \int_\R \prod_{\rv} \, \dd \varphi_\rv \, e^{-S_\mu[\varphi] } \\
+\end{equation}
+Avec l'action $S$ s'écrivant :
+\begin{equation}
+  S_\mu[\varphi] = \frac{1}{2} \int_\qv \varphi(\qv) \frac{1}{\lambda_\mu(\qv)} \varphi(-\qv) - \sum\limits_\rv \ln\(\cosh(\varphi_\rv)\)
+\end{equation}
+Par isometrie de la transformation de Fourier, et donc par le théorème de Parseval, nous réecrivons $S$ sous la forme 
+\begin{equation}
+  \begin{split}
+    S_\mu[\varphi] & = \frac{1}{2} \int_\qv \varphi(\qv) \[\frac{1}{\lambda_\mu(\qv)} - \frac{1}{\lambda_\mu(0)}\] \varphi(-\qv) \\
+    &+ \sum\limits_\rv \[\frac{1}{2\lambda_\mu(0)}\varphi_\rv^2 - \ln\(\cosh(\varphi_\rv)\) \]
+  \end{split}
+\end{equation}
+Enfin, soit $\delta \in \R^+_*$, on pose le changement de variable, 
+\begin{equation}
+  \varphi \rightarrow \delta\sqrt{2 \beta J d} \, \varphi 
+\end{equation}
+On obtient alors 
+\begin{equation}
+S_\mu[\varphi] = \frac{1}{2} \int_\qv \hat{\varphi}(\qv)\eo(\qv)\hat{\varphi}(-\qv) + \sum_\rv V_0(\varphi(\rv))
+\end{equation}
+Avec, en posant $\tilde{\mu} = \mu/(Jd)$ et $\tilde{\beta} = \beta Jd$,
+\begin{equation}
+  \eo(\qv) = \delta^2\frac{1 - \gamma(\qv)}{(\gamma(\qv) + \tilde{\mu})(1+\tilde{\mu})}
+\end{equation}
+\begin{equation}
+  V_0(\rho) = \delta^2 \frac{1}{1+\tilde{\mu}} \rho - \ln\(\cosh\(2\delta\sqrt{\tilde{\beta}\rho}\)\)
+\end{equation}
+
+
+On se retrouve donc ici avec la formultion d'un problème de théorie des champs que l'on peut résoudre avec le groupe de renormalisatio non perturbatif et nottamment avec l'approximation BMW.
+
+
+
+\subsection{Les equations BMW dimensionnées}
+
+Les équations a résoudre numériquement sont
+
+\begin{equation}
+\begin{split}
+\partial_t & \Delta_k(p_x, p_y, \rho)  = - 2\rho J_3(p_x, p_y, \rho) u_k^2(\rho) \\
+& + 2\rho J_3(p_x, p_y, \rho) {\[ u_k(\rho) + \partial_\rho \Delta_k(p_x, p_y, \rho) \]}^{2} \\
+& - \frac{1}{2}I_2(\rho)\[\partial_\rho \Delta_k(p_x, p_y, \rho) + 2\rho\partial_\rho^2 \Delta_k(p_x, p_y, \rho) \]
+\end{split} 
+\end{equation}
+
+\begin{equation}
+\partial_t W_k(\rho) = \frac{1}{2} \partial_\rho I_1 (\rho)
+\end{equation}
+
+Avec les notations
+
+\end{multicols}
+\begin{equation}
+J_n (p_x, p_y, \rho) = \frac{1}{(2\pi)^2} \int_{-\pi}^\pi \int_{-\pi}^\pi \partial_t \Rc_k(q_x, q_y) \,
+G_k^{n-1}(q_x,q_y,\rho)G_k(p_x+q_x,p_y+q_y,\rho) \, \dd q_x \,\dd q_y
+\end{equation}
+\begin{equation}
+I_n (p_x, p_y, \rho) = \frac{1}{(2\pi)^2} \int_{-\pi}^\pi \int_{-\pi}^\pi \partial_t \Rc_k(q_x, q_y) \,
+G_k^{n}(q_x,q_y,\rho) \, \dd q_x \,\dd q_y
+\end{equation}
+\begin{equation}
+G_k(q_x,q_y,\rho) = \frac{1}{\eo(q_x, q_y) + \Delta_k(q_x, q_y, \rho) + m^2_k(\rho) + \Rc_k(q_x, q_y) }
+\end{equation}
+
+\vspace*{11pt}
+
+\begin{multicols}{2}
+
+
+Pour le regulateur nous avons opté pour une expression exponentielle dont on a déjà mis en évidence qu'elle était stable pour les équations BMW.
+
+On pose,
+\begin{equation}
+  \tau(q_x, q_y) = \frac{\eo(q_x, q_y)}{2k^2 {\|\eo\|}_{L^\infty}}
+\end{equation}
+
+On choisit alors
+\begin{equation}
+  \Rc_k(q_x, q_y) = \frac{\alpha \eo(q_x, q_y)}{\exp\(2\tau(q_x, q_y)\) -1 }
+\end{equation}
+\begin{equation}
+  \partial_t \Rc_k(q_x, q_y) =\alpha \eo(q_x, q_y) \frac{\tau(q_x, q_y)}{\sinh^2\(\tau(q_x, q_y)\)}
+\end{equation}
+
+
+\vspace*{11pt}
+
+\section{Schéma numérique}
+
+Nous savons que ce qui est important ici est d'avoir un schéma avec des calculs de dérivées suffisaments précis pour ne pas avoir d'instabilité numériques qui peuvent se propager très vite, d'autant plus que l'on utilise un simple schéma d'Euler. L'idée est alors d'utiliser la même technique de simulation ici en 2D qui ce qui a été fait en 1D pour les équations BMW du modèle $\phiv^4$.
+
+\subsection{Intégration}
+
+Pour calculer numériquement les différentes intégrales nous nous servons des propriétées de symétries des différentes fonctions. En effet pour tout $\rho \in \R^+$ les fonctions $\eo(.,.)$, $\Rc_k(.,.)$, $\Delta_k(.,.,\rho)$, ...
+
+\subsubsection{Integration d'une fonction symétrique}
+
+Soit $f$ une fonction de $[-\pi, \pi] \times [-\pi, \pi]$ à valeurs dans $\R$. On suppose que $f$ est symétrique par rapport à l'axe des $x=0$, à l'axe des $y=0$ et à l'axe $x=y$. Nous cherchons alors une quadrature pour integrer $f$ sur son domaine de définition. Pour commencer, en utilisant les deux premières symétries,
+\begin{equation}
+\int_{-\pi}^{\pi} \int_{-\pi}^{\pi} f(x,y) \, \dd x \, \dd y = 4 \int_{0}^{\pi}  \int_{0}^{\pi} f(x,y) \, \dd x \, \dd y
+\end{equation} 
+On peut alors faire le changement de variable affine  $\(\tilde{x}, \tilde{y}\) \rightarrow \(2x/\pi -1, 2y/\pi -1\) $ donnant,  
+\begin{equation}
+\begin{split} 
+  \int_{0}^{\pi}  \int_{0}^{\pi}  f(x,y) \, & \dd x \, \dd y = \\
+ \frac{\pi^2}{4} \int_{-1}^{1} & \int_{-1}^{1} f\(\frac{\pi}{2}\(\tilde{x}+1\),\frac{\pi}{2}\(\tilde{y}+1\)\) \, \dd \tilde{x}  \, \dd \tilde{y} 
+\end{split}
+\end{equation}
+Les intégrales sur le carré unité $[-1,1] \times [-1, 1]$ sont alors calculées avec une quadrature de Gauss-Legendre \textit{tensorielle} obtenue à partir de la quadrature de Gauss-Legendre 1D. Il vient des considérations précédentes, 
+\begin{equation}
+\begin{split}
+ \int_{-\pi}^{\pi} \int_{-\pi}^{\pi} f(x,y) \,&  \dd x \, \dd y \simeq \\ 
+ \pi^2\sum_{i=0}^{N_{GL}} & \sum_{j=0}^{N_{GL}}w_i w_j f(\frac{\pi}{2}\(\xi_i+1\), \frac{\pi}{2}\(\xi_j+1\))
+\end{split}
+\end{equation}
+Où $\{w_i\}_{i \in \bbrac {1, N_{GL}}}$ sont les poids d'integration de Gauss Legendre en 1D et  $\{\xi_i\}_{i \in \bbrac {1, N_{GL}}}$ les points d'intégration correspondants. Par construction, $((w_i w_j))_{i,j}$ est une matrice symétrique et par symétrie de $f$ par rapport à la première bissectrice nous pouvons alors réduire la double somme par, 
+\begin{equation}
+\begin{split}
+ \int_{-\pi}^{\pi} \int_{-\pi}^{\pi} f(x,y) \,&  \dd x \, \dd y \simeq \\ 
+ \pi^2\sum_{i=0}^{N_{GL}} & \sum_{j=0}^{i-1}w_i w_j 2 f(\frac{\pi}{2}\(\xi_i+1\), \frac{\pi}{2}\(\xi_j+1\)) \, + \\
+\pi^2\sum_{i=0}^{N_{GL}} & w_i^2f(\frac{\pi}{2}\(\xi_i+1\), \frac{\pi}{2}\(\xi_i+1\))
+\end{split}
+\end{equation}
+Ce qui permet de réduire le temps de calcul en réduisant légèrement la complexité algorithmique.
+
+\vspace*{11pt}
+
+
+
+\subsubsection{Integration d'une fonction presque symétrique et $2\pi$ périodique}
+
+Soit $(a,b) \in [0,\pi]\times [0,\pi]$. Soit maintenant $f$ et $h$ deux fonctions de $\R^2$ dans $\R$ et  $g$ définie sur  $[-\pi, \pi] \times [-\pi, \pi]$ par $g : (x,y) \rightarrow f(x+a, y+b)$. On suppose, comme précédemment, que $f$ et $h$ sont symétriques par rapport à l'axe $x=0$, à l'axe $y=0$ et à l'axe $x=y$. On fait aussi l'hypothèse qu'elles sont $2\pi$ periodiques. Nous cherchons alors une quadrature pour integrer $g\times h$ sur $[-\pi, \pi] \times [-\pi, \pi]$. Pour cela remarquons que
+\begin{equation}
+\begin{split}
+ & \int_{-\pi}^{\pi} \int_{-\pi}^{\pi} g(x,y) h(x,y) \,  \dd x \, \dd y  = \\
+ \int_{0}^{\pi} & \int_{0}^{\pi} [f(x+a, y+b) + f(x+a, y-b)] h(x,y) \, \dd x \, \dd y \, + \\ 
+\int_{0}^{\pi} & \int_{0}^{\pi} [f(x-a, y+b) + f(x-a, y-b)] h(x,y)  \, \dd x \, \dd y 
+\end{split}
+\end{equation}
+On peut alors adopter la même quadrature que précédement, cependant ici 
+
+\vspace*{11pt}
+
+
+\subsection{Interpolation}
+
+Afin de pouvoir calculer nos intgérales comme précédemment avec une bonne préceision et notamment pour obtenir $J_3$, il est necessaire d'interpoler correctement les fonctions dans le plan $\Pc$
 
 \bibliographystyle{plain}
 \bibliography{notes}
@@ -236,6 +460,25 @@ La seconde approximation possible est celle développée par Blaizot-M-W (BMW) e
 \newpage
 
 \appendix
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 \section{Rappels de calculs}
 
@@ -504,6 +747,13 @@ Il vient directement le résultat.
 \begin{equation}
    \derd{\hat{F}}{\hat{\phiv}(-\pv)}(\qv_1, \qv_4) = - \int_{\R^d} \int_{\R^d} \hat{F}^{-1}(\qv_1, -\qv_2) \derd{\hat{F}}{\hat{\phiv}(-\pv)}(\qv_2, \qv_3) \hat{F}^{-1}(-\qv_3, \qv_4) \dd^d \qv_2 \dd^d \qv_3
 \end{equation}
+
+
+
+
+
+
+
 
 
 
